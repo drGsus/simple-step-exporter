@@ -41,11 +41,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Content\Box.cs" />
-    <Compile Include="Content\Default.cs" />
+    <Compile Include="Content\Internal\Default.cs" />
+    <Compile Include="Content\IContent.cs" />
+    <Compile Include="Content\Internal\RootAssembly.cs" />
     <Compile Include="Helper\Color.cs" />
     <Compile Include="Helper\Vector3.cs" />
+    <Compile Include="IStepManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StepFile.cs" />
+    <Compile Include="StepManager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
