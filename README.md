@@ -9,11 +9,13 @@ At the moment this library only supports wrting boxes to the STEP file format. T
 * position
 * rotation
 * size
-* color
+* color  
+
+Each box is a separate part. All parts are organized under a root assembly thats name can be specified.
 
 ## Limitations
-* writing hierarchy information is not supported
-* Box class is still work in progress (highly inefficient and monolithic but working)
+* writing deep hierarchy information is not supported
+* the whole project is work in progress
 
 # Quick start
 1. Specify your _FILEPATH_ in _Program.cs_
