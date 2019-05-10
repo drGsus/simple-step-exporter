@@ -53,6 +53,23 @@ namespace SimpleStepWriter.Content
         private Vector3 pointF;
         private Vector3 pointG;
         private Vector3 pointH;
+        
+        /// <summary>
+        /// Create a new instance of a box with given parameters.
+        /// </summary>
+        /// <param name="name">Name of the box that is visible in the CAD hierarchy.</param>     
+        /// <param name="dimension">Box dimension (it's the complete length of an edge, not half of it)</param>
+        /// <param name="rotation">Box rotation (around the provided position).</param>
+        /// <param name="color">Box color. Transparency not supported yet.</param>
+        public Box(IStepManager stepManager, string name, Vector3 center, Vector3 dimension, Vector3 rotation, Color color)
+        {
+            this.StepManager = stepManager;
+            this.Name = name;
+            this.Center = center;
+            this.Scale = dimension;
+            this.Rotation = rotation;
+            this.Color = color;
+        }
 
         /// <summary>
         /// Get STEP file lines.
@@ -78,7 +95,7 @@ namespace SimpleStepWriter.Content
             // return lines that represent a box that considers the previously provided information
             string[] lines = new string[] {
                 // part section start
-                @"#" + (StepManager.NextId + 0) + " = SHAPE_DEFINITION_REPRESENTATION(#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 7) + ");",             
+                @"#" + (StepManager.NextId + 0) + " = SHAPE_DEFINITION_REPRESENTATION(#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 7) + ");",
                 @"#" + (StepManager.NextId + 1) + " = PRODUCT_DEFINITION_SHAPE('','',#" + (StepManager.NextId + 2) + ");",
                 @"#" + (StepManager.NextId + 2) + " = PRODUCT_DEFINITION('design','',#" + (StepManager.NextId + 3) + ",#" + (StepManager.NextId + 6) + ");",
                 @"#" + (StepManager.NextId + 3) + " = PRODUCT_DEFINITION_FORMATION('','',#" + (StepManager.NextId + 4) + ");",
@@ -105,18 +122,18 @@ namespace SimpleStepWriter.Content
                 @"#" + (StepManager.NextId + 23) + " = ORIENTED_EDGE('',*,*,#" + (StepManager.NextId + 24) + ",.F.);",
                 @"#" + (StepManager.NextId + 24) + " = EDGE_CURVE('',#" + (StepManager.NextId + 25) + ",#" + (StepManager.NextId + 27) + ",#" + (StepManager.NextId + 29) + ",.T.);",
                 @"#" + (StepManager.NextId + 25) + " = VERTEX_POINT('',#" + (StepManager.NextId + 26) + ");",
-                @"#" + (StepManager.NextId + 26) + " = CARTESIAN_POINT('',(" + GetAPointX() + "," + GetAPointY() + "," + GetAPointZ() + "));",
+                @"#" + (StepManager.NextId + 26) + " = CARTESIAN_POINT('',(" + pointA.XString + "," + pointA.YString + "," + pointA.ZString + "));",
                 @"#" + (StepManager.NextId + 27) + " = VERTEX_POINT('',#" + (StepManager.NextId + 28) + ");",
-                @"#" + (StepManager.NextId + 28) + " = CARTESIAN_POINT('',(" + GetBPointX() + "," + GetBPointY() + "," + GetBPointZ() + "));",
+                @"#" + (StepManager.NextId + 28) + " = CARTESIAN_POINT('',(" + pointB.XString + "," + pointB.YString + "," + pointB.ZString + "));",
                 @"#" + (StepManager.NextId + 29) + " = SURFACE_CURVE('',#" + (StepManager.NextId + 30) + ",(#" + (StepManager.NextId + 34) + ",#" + (StepManager.NextId + 46) + "),.PCURVE_S1.);",
                 @"#" + (StepManager.NextId + 30) + " = LINE('',#" + (StepManager.NextId + 31) + ",#" + (StepManager.NextId + 32) + ");",
-                @"#" + (StepManager.NextId + 31) + " = CARTESIAN_POINT('',(" + GetAPointX() + "," + GetAPointY() + "," + GetAPointZ() + "));",
+                @"#" + (StepManager.NextId + 31) + " = CARTESIAN_POINT('',(" + pointA.XString + "," + pointA.YString + "," + pointA.ZString + "));",
                 @"#" + (StepManager.NextId + 32) + " = VECTOR('',#" + (StepManager.NextId + 33) + ",1.);",
                 @"#" + (StepManager.NextId + 33) + " = DIRECTION('',(0.,0.,1.));",
                 @"#" + (StepManager.NextId + 34) + " = PCURVE('',#" + (StepManager.NextId + 35) + ",#" + (StepManager.NextId + 40) + ");",
                 @"#" + (StepManager.NextId + 35) + " = PLANE('',#" + (StepManager.NextId + 36) + ");",
                 @"#" + (StepManager.NextId + 36) + " = AXIS2_PLACEMENT_3D('',#" + (StepManager.NextId + 37) + ",#" + (StepManager.NextId + 38) + ",#" + (StepManager.NextId + 39) + ");",
-                @"#" + (StepManager.NextId + 37) + " = CARTESIAN_POINT('',(" + GetAPointX() + "," + GetAPointY() + "," + GetAPointZ() + "));",
+                @"#" + (StepManager.NextId + 37) + " = CARTESIAN_POINT('',(" + pointA.XString + "," + pointA.YString + "," + pointA.ZString + "));",
                 @"#" + (StepManager.NextId + 38) + " = DIRECTION('',(1.,0.,0.));",
                 @"#" + (StepManager.NextId + 39) + " = DIRECTION('',(0.,0.,1.));",
                 @"#" + (StepManager.NextId + 40) + " = DEFINITIONAL_REPRESENTATION('',(#" + (StepManager.NextId + 41) + "),#" + (StepManager.NextId + 45) + ");",
@@ -128,7 +145,7 @@ namespace SimpleStepWriter.Content
                 @"#" + (StepManager.NextId + 46) + " = PCURVE('',#" + (StepManager.NextId + 47) + ",#" + (StepManager.NextId + 52) + ");",
                 @"#" + (StepManager.NextId + 47) + " = PLANE('',#" + (StepManager.NextId + 48) + ");",
                 @"#" + (StepManager.NextId + 48) + " = AXIS2_PLACEMENT_3D('',#" + (StepManager.NextId + 49) + ",#" + (StepManager.NextId + 50) + ",#" + (StepManager.NextId + 51) + ");",
-                @"#" + (StepManager.NextId + 49) + " = CARTESIAN_POINT('',(" + GetAPointX() + "," + GetAPointY() + "," + GetAPointZ() + "));",
+                @"#" + (StepManager.NextId + 49) + " = CARTESIAN_POINT('',(" + pointA.XString + "," + pointA.YString + "," + pointA.ZString + "));",
                 @"#" + (StepManager.NextId + 50) + " = DIRECTION('',(0.,1.,0.));",
                 @"#" + (StepManager.NextId + 51) + " = DIRECTION('',(0.,0.,1.));",
                 @"#" + (StepManager.NextId + 52) + " = DEFINITIONAL_REPRESENTATION('',(#" + (StepManager.NextId + 53) + "),#" + (StepManager.NextId + 57) + ");",
@@ -140,10 +157,10 @@ namespace SimpleStepWriter.Content
                 @"#" + (StepManager.NextId + 58) + " = ORIENTED_EDGE('',*,*,#" + (StepManager.NextId + 59) + ",.T.);",
                 @"#" + (StepManager.NextId + 59) + " = EDGE_CURVE('',#" + (StepManager.NextId + 25) + ",#" + (StepManager.NextId + 60) + ",#" + (StepManager.NextId + 62) + ",.T.);",
                 @"#" + (StepManager.NextId + 60) + " = VERTEX_POINT('',#" + (StepManager.NextId + 61) + ");",
-                @"#" + (StepManager.NextId + 61) + " = CARTESIAN_POINT('',(" + GetEPointX() + "," + GetEPointY() + "," + GetEPointZ() + "));",
+                @"#" + (StepManager.NextId + 61) + " = CARTESIAN_POINT('',(" + pointE.XString + "," + pointE.YString + "," + pointE.ZString + "));",
                 @"#" + (StepManager.NextId + 62) + " = SURFACE_CURVE('',#" + (StepManager.NextId + 63) + ",(#" + (StepManager.NextId + 67) + ",#" + (StepManager.NextId + 74) + "),.PCURVE_S1.);",
                 @"#" + (StepManager.NextId + 63) + " = LINE('',#" + (StepManager.NextId + 64) + ",#" + (StepManager.NextId + 65) + ");",
-                @"#" + (StepManager.NextId + 64) + " = CARTESIAN_POINT('',(" + GetAPointX() + "," + GetAPointY() + "," + GetAPointZ() + "));",
+                @"#" + (StepManager.NextId + 64) + " = CARTESIAN_POINT('',(" + pointA.XString + "," + pointA.YString + "," + pointA.ZString + "));",
                 @"#" + (StepManager.NextId + 65) + " = VECTOR('',#" + (StepManager.NextId + 66) + ",1.);",
                 @"#" + (StepManager.NextId + 66) + " = DIRECTION('',(0.,1.,0.));",
                 @"#" + (StepManager.NextId + 67) + " = PCURVE('',#" + (StepManager.NextId + 35) + ",#" + (StepManager.NextId + 68) + ");",
@@ -156,7 +173,7 @@ namespace SimpleStepWriter.Content
                 @"#" + (StepManager.NextId + 74) + " = PCURVE('',#" + (StepManager.NextId + 75) + ",#" + (StepManager.NextId + 80) + ");",
                 @"#" + (StepManager.NextId + 75) + " = PLANE('',#" + (StepManager.NextId + 76) + ");",
                 @"#" + (StepManager.NextId + 76) + " = AXIS2_PLACEMENT_3D('',#" + (StepManager.NextId + 77) + ",#" + (StepManager.NextId + 78) + ",#" + (StepManager.NextId + 79) + ");",
-                @"#" + (StepManager.NextId + 77) + " = CARTESIAN_POINT('',(" + GetAPointX() + "," + GetAPointY() + "," + GetAPointZ() + "));",
+                @"#" + (StepManager.NextId + 77) + " = CARTESIAN_POINT('',(" + pointA.XString + "," + pointA.YString + "," + pointA.ZString + "));",
                 @"#" + (StepManager.NextId + 78) + " = DIRECTION('',(0.,0.,1.));",
                 @"#" + (StepManager.NextId + 79) + " = DIRECTION('',(1.,0.,0.));",
                 @"#" + (StepManager.NextId + 80) + " = DEFINITIONAL_REPRESENTATION('',(#" + (StepManager.NextId + 81) + "),#" + (StepManager.NextId + 85) + ");",
@@ -168,10 +185,10 @@ namespace SimpleStepWriter.Content
                 @"#" + (StepManager.NextId + 86) + " = ORIENTED_EDGE('',*,*,#" + (StepManager.NextId + 87) + ",.T.);",
                 @"#" + (StepManager.NextId + 87) + " = EDGE_CURVE('',#" + (StepManager.NextId + 60) + ",#" + (StepManager.NextId + 88) + ",#" + (StepManager.NextId + 90) + ",.T.);",
                 @"#" + (StepManager.NextId + 88) + " = VERTEX_POINT('',#" + (StepManager.NextId + 89) + ");",
-                @"#" + (StepManager.NextId + 89) + " = CARTESIAN_POINT('',(" + GetFPointX() + "," + GetFPointY() + "," + GetFPointZ() + "));",
+                @"#" + (StepManager.NextId + 89) + " = CARTESIAN_POINT('',(" + pointF.XString + "," + pointF.YString + "," + pointF.ZString + "));",
                 @"#" + (StepManager.NextId + 90) + " = SURFACE_CURVE('',#" + (StepManager.NextId + 91) + ",(#" + (StepManager.NextId + 95) + ",#" + (StepManager.NextId + 102) + "),.PCURVE_S1.);",
                 @"#" + (StepManager.NextId + 91) + " = LINE('',#" + (StepManager.NextId + 92) + ",#" + (StepManager.NextId + 93) + ");",
-                @"#" + (StepManager.NextId + 92) + " = CARTESIAN_POINT('',(" + GetEPointX() + "," + GetEPointY() + "," + GetEPointZ() + "));",
+                @"#" + (StepManager.NextId + 92) + " = CARTESIAN_POINT('',(" + pointE.XString + "," + pointE.YString + "," + pointE.ZString + "));",
                 @"#" + (StepManager.NextId + 93) + " = VECTOR('',#" + (StepManager.NextId + 94) + ",1.);",
                 @"#" + (StepManager.NextId + 94) + " = DIRECTION('',(0.,0.,1.));",
                 @"#" + (StepManager.NextId + 95) + " = PCURVE('',#" + (StepManager.NextId + 35) + ",#" + (StepManager.NextId + 96) + ");",
@@ -184,7 +201,7 @@ namespace SimpleStepWriter.Content
                 @"#" + (StepManager.NextId + 102) + " = PCURVE('',#" + (StepManager.NextId + 103) + ",#" + (StepManager.NextId + 108) + ");",
                 @"#" + (StepManager.NextId + 103) + " = PLANE('',#" + (StepManager.NextId + 104) + ");",
                 @"#" + (StepManager.NextId + 104) + " = AXIS2_PLACEMENT_3D('',#" + (StepManager.NextId + 105) + ",#" + (StepManager.NextId + 106) + ",#" + (StepManager.NextId + 107) + ");",
-                @"#" + (StepManager.NextId + 105) + " = CARTESIAN_POINT('',(" + GetEPointX() + "," + GetEPointY() + "," + GetEPointZ() + "));",
+                @"#" + (StepManager.NextId + 105) + " = CARTESIAN_POINT('',(" + pointE.XString + "," + pointE.YString + "," + pointE.ZString + "));",
                 @"#" + (StepManager.NextId + 106) + " = DIRECTION('',(0.,1.,0.));",
                 @"#" + (StepManager.NextId + 107) + " = DIRECTION('',(0.,0.,1.));",
                 @"#" + (StepManager.NextId + 108) + " = DEFINITIONAL_REPRESENTATION('',(#" + (StepManager.NextId + 109) + "),#" + (StepManager.NextId + 113) + ");",
@@ -197,7 +214,7 @@ namespace SimpleStepWriter.Content
                 @"#" + (StepManager.NextId + 115) + " = EDGE_CURVE('',#" + (StepManager.NextId + 27) + ",#" + (StepManager.NextId + 88) + ",#" + (StepManager.NextId + 116) + ",.T.);",
                 @"#" + (StepManager.NextId + 116) + " = SURFACE_CURVE('',#" + (StepManager.NextId + 117) + ",(#" + (StepManager.NextId + 121) + ",#" + (StepManager.NextId + 128) + "),.PCURVE_S1.);",
                 @"#" + (StepManager.NextId + 117) + " = LINE('',#" + (StepManager.NextId + 118) + ",#" + (StepManager.NextId + 119) + ");",
-                @"#" + (StepManager.NextId + 118) + " = CARTESIAN_POINT('',(" + GetBPointX() + "," + GetBPointY() + "," + GetBPointZ() + "));",
+                @"#" + (StepManager.NextId + 118) + " = CARTESIAN_POINT('',(" + pointB.XString + "," + pointB.YString + "," + pointB.ZString + "));",
                 @"#" + (StepManager.NextId + 119) + " = VECTOR('',#" + (StepManager.NextId + 120) + ",1.);",
                 @"#" + (StepManager.NextId + 120) + " = DIRECTION('',(0.,1.,0.));",
                 @"#" + (StepManager.NextId + 121) + " = PCURVE('',#" + (StepManager.NextId + 35) + ",#" + (StepManager.NextId + 122) + ");",
@@ -210,7 +227,7 @@ namespace SimpleStepWriter.Content
                 @"#" + (StepManager.NextId + 128) + " = PCURVE('',#" + (StepManager.NextId + 129) + ",#" + (StepManager.NextId + 134) + ");",
                 @"#" + (StepManager.NextId + 129) + " = PLANE('',#" + (StepManager.NextId + 130) + ");",
                 @"#" + (StepManager.NextId + 130) + " = AXIS2_PLACEMENT_3D('',#" + (StepManager.NextId + 131) + ",#" + (StepManager.NextId + 132) + ",#" + (StepManager.NextId + 133) + ");",
-                @"#" + (StepManager.NextId + 131) + " = CARTESIAN_POINT('',(" + GetBPointX() + "," + GetBPointY() + "," + GetBPointZ() + "));",
+                @"#" + (StepManager.NextId + 131) + " = CARTESIAN_POINT('',(" + pointB.XString + "," + pointB.YString + "," + pointB.ZString + "));",
                 @"#" + (StepManager.NextId + 132) + " = DIRECTION('',(0.,0.,1.));",
                 @"#" + (StepManager.NextId + 133) + " = DIRECTION('',(1.,0.,0.));",
                 @"#" + (StepManager.NextId + 134) + " = DEFINITIONAL_REPRESENTATION('',(#" + (StepManager.NextId + 135) + "),#" + (StepManager.NextId + 139) + ");",
@@ -225,18 +242,18 @@ namespace SimpleStepWriter.Content
                 @"#" + (StepManager.NextId + 143) + " = ORIENTED_EDGE('',*,*,#" + (StepManager.NextId + 144) + ",.F.);",
                 @"#" + (StepManager.NextId + 144) + " = EDGE_CURVE('',#" + (StepManager.NextId + 145) + ",#" + (StepManager.NextId + 147) + ",#" + (StepManager.NextId + 149) + ",.T.);",
                 @"#" + (StepManager.NextId + 145) + " = VERTEX_POINT('',#" + (StepManager.NextId + 146) + ");",
-                @"#" + (StepManager.NextId + 146) + " = CARTESIAN_POINT('',(" + GetDPointX() + "," + GetDPointY() + "," + GetDPointZ() + "));",
+                @"#" + (StepManager.NextId + 146) + " = CARTESIAN_POINT('',(" + pointD.XString + "," + pointD.YString + "," + pointD.ZString + "));",
                 @"#" + (StepManager.NextId + 147) + " = VERTEX_POINT('',#" + (StepManager.NextId + 148) + ");",
-                @"#" + (StepManager.NextId + 148) + " = CARTESIAN_POINT('',(" + GetCPointX() + "," + GetCPointY() + "," + GetCPointZ() + "));",
+                @"#" + (StepManager.NextId + 148) + " = CARTESIAN_POINT('',(" + pointC.XString + "," + pointC.YString + "," + pointC.ZString + "));",
                 @"#" + (StepManager.NextId + 149) + " = SURFACE_CURVE('',#" + (StepManager.NextId + 150) + ",(#" + (StepManager.NextId + 154) + ",#" + (StepManager.NextId + 166) + "),.PCURVE_S1.);",
                 @"#" + (StepManager.NextId + 150) + " = LINE('',#" + (StepManager.NextId + 151) + ",#" + (StepManager.NextId + 152) + ");",
-                @"#" + (StepManager.NextId + 151) + " = CARTESIAN_POINT('',(" + GetDPointX() + "," + GetDPointY() + "," + GetDPointZ() + "));",
+                @"#" + (StepManager.NextId + 151) + " = CARTESIAN_POINT('',(" + pointD.XString + "," + pointD.YString + "," + pointD.ZString + "));",
                 @"#" + (StepManager.NextId + 152) + " = VECTOR('',#" + (StepManager.NextId + 153) + ",1.);",
                 @"#" + (StepManager.NextId + 153) + " = DIRECTION('',(0.,0.,1.));",
                 @"#" + (StepManager.NextId + 154) + " = PCURVE('',#" + (StepManager.NextId + 155) + ",#" + (StepManager.NextId + 160) + ");",
                 @"#" + (StepManager.NextId + 155) + " = PLANE('',#" + (StepManager.NextId + 156) + ");",
                 @"#" + (StepManager.NextId + 156) + " = AXIS2_PLACEMENT_3D('',#" + (StepManager.NextId + 157) + ",#" + (StepManager.NextId + 158) + ",#" + (StepManager.NextId + 159) + ");",
-                @"#" + (StepManager.NextId + 157) + " = CARTESIAN_POINT('',(" + GetDPointX() + "," + GetDPointY() + "," + GetDPointZ() + "));",
+                @"#" + (StepManager.NextId + 157) + " = CARTESIAN_POINT('',(" + pointD.XString + "," + pointD.YString + "," + pointD.ZString + "));",
                 @"#" + (StepManager.NextId + 158) + " = DIRECTION('',(1.,0.,0.));",
                 @"#" + (StepManager.NextId + 159) + " = DIRECTION('',(0.,0.,1.));",
                 @"#" + (StepManager.NextId + 160) + " = DEFINITIONAL_REPRESENTATION('',(#" + (StepManager.NextId + 161) + "),#" + (StepManager.NextId + 165) + ");",
@@ -255,10 +272,10 @@ namespace SimpleStepWriter.Content
                 @"#" + (StepManager.NextId + 173) + " = ORIENTED_EDGE('',*,*,#" + (StepManager.NextId + 174) + ",.T.);",
                 @"#" + (StepManager.NextId + 174) + " = EDGE_CURVE('',#" + (StepManager.NextId + 145) + ",#" + (StepManager.NextId + 175) + ",#" + (StepManager.NextId + 177) + ",.T.);",
                 @"#" + (StepManager.NextId + 175) + " = VERTEX_POINT('',#" + (StepManager.NextId + 176) + ");",
-                @"#" + (StepManager.NextId + 176) + " = CARTESIAN_POINT('',(" + GetHPointX() + "," + GetHPointY() + "," + GetHPointZ() + "));",
+                @"#" + (StepManager.NextId + 176) + " = CARTESIAN_POINT('',(" + pointH.XString + "," + pointH.YString + "," + pointH.ZString + "));",
                 @"#" + (StepManager.NextId + 177) + " = SURFACE_CURVE('',#" + (StepManager.NextId + 178) + ",(#" + (StepManager.NextId + 182) + ",#" + (StepManager.NextId + 189) + "),.PCURVE_S1.);",
                 @"#" + (StepManager.NextId + 178) + " = LINE('',#" + (StepManager.NextId + 179) + ",#" + (StepManager.NextId + 180) + ");",
-                @"#" + (StepManager.NextId + 179) + " = CARTESIAN_POINT('',(" + GetDPointX() + "," + GetDPointY() + "," + GetDPointZ() + "));",
+                @"#" + (StepManager.NextId + 179) + " = CARTESIAN_POINT('',(" + pointD.XString + "," + pointD.YString + "," + pointD.ZString + "));",
                 @"#" + (StepManager.NextId + 180) + " = VECTOR('',#" + (StepManager.NextId + 181) + ",1.);",
                 @"#" + (StepManager.NextId + 181) + " = DIRECTION('',(0.,1.,0.));",
                 @"#" + (StepManager.NextId + 182) + " = PCURVE('',#" + (StepManager.NextId + 155) + ",#" + (StepManager.NextId + 183) + ");",
@@ -278,10 +295,10 @@ namespace SimpleStepWriter.Content
                 @"#" + (StepManager.NextId + 196) + " = ORIENTED_EDGE('',*,*,#" + (StepManager.NextId + 197) + ",.T.);",
                 @"#" + (StepManager.NextId + 197) + " = EDGE_CURVE('',#" + (StepManager.NextId + 175) + ",#" + (StepManager.NextId + 198) + ",#" + (StepManager.NextId + 200) + ",.T.);",
                 @"#" + (StepManager.NextId + 198) + " = VERTEX_POINT('',#" + (StepManager.NextId + 199) + ");",
-                @"#" + (StepManager.NextId + 199) + " = CARTESIAN_POINT('',(" + GetGPointX() + "," + GetGPointY() + "," + GetGPointZ() + "));",
+                @"#" + (StepManager.NextId + 199) + " = CARTESIAN_POINT('',(" + pointG.XString + "," + pointG.YString + "," + pointG.ZString + "));",
                 @"#" + (StepManager.NextId + 200) + " = SURFACE_CURVE('',#" + (StepManager.NextId + 201) + ",(#" + (StepManager.NextId + 205) + ",#" + (StepManager.NextId + 212) + "),.PCURVE_S1.);",
                 @"#" + (StepManager.NextId + 201) + " = LINE('',#" + (StepManager.NextId + 202) + ",#" + (StepManager.NextId + 203) + ");",
-                @"#" + (StepManager.NextId + 202) + " = CARTESIAN_POINT('',(" + GetHPointX() + "," + GetHPointY() + "," + GetHPointZ() + "));",
+                @"#" + (StepManager.NextId + 202) + " = CARTESIAN_POINT('',(" + pointH.XString + "," + pointH.YString + "," + pointH.ZString + "));",
                 @"#" + (StepManager.NextId + 203) + " = VECTOR('',#" + (StepManager.NextId + 204) + ",1.);",
                 @"#" + (StepManager.NextId + 204) + " = DIRECTION('',(0.,0.,1.));",
                 @"#" + (StepManager.NextId + 205) + " = PCURVE('',#" + (StepManager.NextId + 155) + ",#" + (StepManager.NextId + 206) + ");",
@@ -302,7 +319,7 @@ namespace SimpleStepWriter.Content
                 @"#" + (StepManager.NextId + 220) + " = EDGE_CURVE('',#" + (StepManager.NextId + 147) + ",#" + (StepManager.NextId + 198) + ",#" + (StepManager.NextId + 221) + ",.T.);",
                 @"#" + (StepManager.NextId + 221) + " = SURFACE_CURVE('',#" + (StepManager.NextId + 222) + ",(#" + (StepManager.NextId + 226) + ",#" + (StepManager.NextId + 233) + "),.PCURVE_S1.);",
                 @"#" + (StepManager.NextId + 222) + " = LINE('',#" + (StepManager.NextId + 223) + ",#" + (StepManager.NextId + 224) + ");",
-                @"#" + (StepManager.NextId + 223) + " = CARTESIAN_POINT('',(" + GetCPointX() + "," + GetCPointY() + "," + GetCPointZ() + "));",
+                @"#" + (StepManager.NextId + 223) + " = CARTESIAN_POINT('',(" + pointC.XString + "," + pointC.YString + "," + pointC.ZString + "));",
                 @"#" + (StepManager.NextId + 224) + " = VECTOR('',#" + (StepManager.NextId + 225) + ",1.);",
                 @"#" + (StepManager.NextId + 225) + " = DIRECTION('',(0.,1.,0.));",
                 @"#" + (StepManager.NextId + 226) + " = PCURVE('',#" + (StepManager.NextId + 155) + ",#" + (StepManager.NextId + 227) + ");",
@@ -326,7 +343,7 @@ namespace SimpleStepWriter.Content
                 @"#" + (StepManager.NextId + 244) + " = EDGE_CURVE('',#" + (StepManager.NextId + 25) + ",#" + (StepManager.NextId + 145) + ",#" + (StepManager.NextId + 245) + ",.T.);",
                 @"#" + (StepManager.NextId + 245) + " = SURFACE_CURVE('',#" + (StepManager.NextId + 246) + ",(#" + (StepManager.NextId + 250) + ",#" + (StepManager.NextId + 257) + "),.PCURVE_S1.);",
                 @"#" + (StepManager.NextId + 246) + " = LINE('',#" + (StepManager.NextId + 247) + ",#" + (StepManager.NextId + 248) + ");",
-                @"#" + (StepManager.NextId + 247) + " = CARTESIAN_POINT('',(" + GetAPointX() + "," + GetAPointY() + "," + GetAPointZ() + "));",
+                @"#" + (StepManager.NextId + 247) + " = CARTESIAN_POINT('',(" + pointA.XString + "," + pointA.YString + "," + pointA.ZString + "));",
                 @"#" + (StepManager.NextId + 248) + " = VECTOR('',#" + (StepManager.NextId + 249) + ",1.);",
                 @"#" + (StepManager.NextId + 249) + " = DIRECTION('',(1.,0.,0.));",
                 @"#" + (StepManager.NextId + 250) + " = PCURVE('',#" + (StepManager.NextId + 47) + ",#" + (StepManager.NextId + 251) + ");",
@@ -348,7 +365,7 @@ namespace SimpleStepWriter.Content
                 @"#" + (StepManager.NextId + 266) + " = EDGE_CURVE('',#" + (StepManager.NextId + 27) + ",#" + (StepManager.NextId + 147) + ",#" + (StepManager.NextId + 267) + ",.T.);",
                 @"#" + (StepManager.NextId + 267) + " = SURFACE_CURVE('',#" + (StepManager.NextId + 268) + ",(#" + (StepManager.NextId + 272) + ",#" + (StepManager.NextId + 279) + "),.PCURVE_S1.);",
                 @"#" + (StepManager.NextId + 268) + " = LINE('',#" + (StepManager.NextId + 269) + ",#" + (StepManager.NextId + 270) + ");",
-                @"#" + (StepManager.NextId + 269) + " = CARTESIAN_POINT('',(" + GetBPointX() + "," + GetBPointY() + "," + GetBPointZ() + "));",
+                @"#" + (StepManager.NextId + 269) + " = CARTESIAN_POINT('',(" + pointB.XString + "," + pointB.YString + "," + pointB.ZString + "));",
                 @"#" + (StepManager.NextId + 270) + " = VECTOR('',#" + (StepManager.NextId + 271) + ",1.);",
                 @"#" + (StepManager.NextId + 271) + " = DIRECTION('',(1.,0.,0.));",
                 @"#" + (StepManager.NextId + 272) + " = PCURVE('',#" + (StepManager.NextId + 47) + ",#" + (StepManager.NextId + 273) + ");",
@@ -373,7 +390,7 @@ namespace SimpleStepWriter.Content
                 @"#" + (StepManager.NextId + 291) + " = EDGE_CURVE('',#" + (StepManager.NextId + 60) + ",#" + (StepManager.NextId + 175) + ",#" + (StepManager.NextId + 292) + ",.T.);",
                 @"#" + (StepManager.NextId + 292) + " = SURFACE_CURVE('',#" + (StepManager.NextId + 293) + ",(#" + (StepManager.NextId + 297) + ",#" + (StepManager.NextId + 304) + "),.PCURVE_S1.);",
                 @"#" + (StepManager.NextId + 293) + " = LINE('',#" + (StepManager.NextId + 294) + ",#" + (StepManager.NextId + 295) + ");",
-                @"#" + (StepManager.NextId + 294) + " = CARTESIAN_POINT('',(" + GetEPointX() + "," + GetEPointY() + "," + GetEPointZ() + "));",
+                @"#" + (StepManager.NextId + 294) + " = CARTESIAN_POINT('',(" + pointE.XString + "," + pointE.YString + "," + pointE.ZString + "));",
                 @"#" + (StepManager.NextId + 295) + " = VECTOR('',#" + (StepManager.NextId + 296) + ",1.);",
                 @"#" + (StepManager.NextId + 296) + " = DIRECTION('',(1.,0.,0.));",
                 @"#" + (StepManager.NextId + 297) + " = PCURVE('',#" + (StepManager.NextId + 103) + ",#" + (StepManager.NextId + 298) + ");",
@@ -395,7 +412,7 @@ namespace SimpleStepWriter.Content
                 @"#" + (StepManager.NextId + 313) + " = EDGE_CURVE('',#" + (StepManager.NextId + 88) + ",#" + (StepManager.NextId + 198) + ",#" + (StepManager.NextId + 314) + ",.T.);",
                 @"#" + (StepManager.NextId + 314) + " = SURFACE_CURVE('',#" + (StepManager.NextId + 315) + ",(#" + (StepManager.NextId + 319) + ",#" + (StepManager.NextId + 326) + "),.PCURVE_S1.);",
                 @"#" + (StepManager.NextId + 315) + " = LINE('',#" + (StepManager.NextId + 316) + ",#" + (StepManager.NextId + 317) + ");",
-                @"#" + (StepManager.NextId + 316) + " = CARTESIAN_POINT('',(" + GetFPointX() + "," + GetFPointY() + "," + GetFPointZ() + "));",
+                @"#" + (StepManager.NextId + 316) + " = CARTESIAN_POINT('',(" + pointF.XString + "," + pointF.YString + "," + pointF.ZString + "));",
                 @"#" + (StepManager.NextId + 317) + " = VECTOR('',#" + (StepManager.NextId + 318) + ",1.);",
                 @"#" + (StepManager.NextId + 318) + " = DIRECTION('',(1.,0.,0.));",
                 @"#" + (StepManager.NextId + 319) + " = PCURVE('',#" + (StepManager.NextId + 103) + ",#" + (StepManager.NextId + 320) + ");",
@@ -470,164 +487,6 @@ namespace SimpleStepWriter.Content
 
             return lines;
         }
-
-        /// <summary>
-        /// Create a new instance of a box with given parameters.
-        /// </summary>
-        /// <param name="name">Name of the box that is visible in the CAD hierarchy.</param>
-        /// <param name="center">Box position (center) in world space.</param>
-        /// <param name="dimension">Box dimension (it's the complete length of an edge, not half of it)</param>
-        /// <param name="rotation">Box rotation (around the provided position).</param>
-        /// <param name="color">Box color. Transparency not supported yet.</param>
-        public Box(IStepManager stepManager, string name, Vector3 center, Vector3 dimension, Vector3 rotation, Color color)
-        {
-            this.StepManager = stepManager;
-            this.Name = name;
-            this.Center = center;
-            this.Scale = dimension;
-            this.Rotation = rotation;
-            this.Color = color;
-        }
-
-        #region Methods that provide the correct string for each point of the box
-
-        // A
-
-        public string GetAPointX()
-        {
-            return pointA.X.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);           
-        }
-
-        public string GetAPointY()
-        {
-            return pointA.Y.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);            
-        }
-
-        public string GetAPointZ()
-        {
-            return pointA.Z.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);            
-        }
-
-        // B
-
-        public string GetBPointX()
-        {
-            return pointB.X.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);            
-        }
-
-        public string GetBPointY()
-        {
-            return pointB.Y.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);            
-        }
-
-        public string GetBPointZ()
-        {
-            return pointB.Z.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);            
-        }
-
-        // C
-
-        public string GetCPointX()
-        {
-            return pointC.X.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);            
-        }
-
-        public string GetCPointY()
-        {
-            return pointC.Y.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);            
-        }
-
-        public string GetCPointZ()
-        {
-            return pointC.Z.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);
-        }
-
-        // D
-
-        public string GetDPointX()
-        {
-            return pointD.X.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);            
-        }
-
-        public string GetDPointY()
-        {
-            return pointD.Y.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);
-        }
-
-        public string GetDPointZ()
-        {
-            return pointD.Z.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);
-        }
-
-        // E
-
-        public string GetEPointX()
-        {
-            return pointE.X.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);
-        }
-
-        public string GetEPointY()
-        {
-            return pointE.Y.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);
-        }
-
-        public string GetEPointZ()
-        {
-            return pointE.Z.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);
-        }
-
-        // F
-
-        public string GetFPointX()
-        {
-            return pointF.X.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);
-        }
-
-        public string GetFPointY()
-        {
-            return pointF.Y.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);
-        }
-
-        public string GetFPointZ()
-        {
-            return pointF.Z.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);
-        }
-
-        // G
-
-        public string GetGPointX()
-        {
-            return pointG.X.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);
-        }
-
-        public string GetGPointY()
-        {
-            return pointG.Y.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);            
-        }
-
-        public string GetGPointZ()
-        {
-            return pointG.Z.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);            
-        }
-
-        // H
-
-        public string GetHPointX()
-        {
-            return pointH.X.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);
-        }
-
-        public string GetHPointY()
-        {
-            return pointH.Y.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);            
-        }
-
-        public string GetHPointZ()
-        {
-            return pointH.Z.ToString("0.00000000", System.Globalization.CultureInfo.InvariantCulture);
-        }
-                
-        #endregion
 
     }
 
