@@ -1,4 +1,6 @@
-﻿namespace SimpleStepWriter.Helper
+﻿using System.Collections.Generic;
+
+namespace SimpleStepWriter.Helper
 {
     public class Vector3
     {
@@ -46,7 +48,36 @@
             Y = y;
             Z = z;
         }
-                
+        
+        public override bool Equals(object obj)
+        {
+            var vector = obj as Vector3;
+            return vector != null &&
+                   X == vector.X &&
+                   Y == vector.Y &&
+                   Z == vector.Z &&
+                   XString == vector.XString &&
+                   YString == vector.YString &&
+                   ZString == vector.ZString;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -818742009;
+            hashCode = hashCode * -1521134295 + X.GetHashCode();
+            hashCode = hashCode * -1521134295 + Y.GetHashCode();
+            hashCode = hashCode * -1521134295 + Z.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(XString);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(YString);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ZString);
+            return hashCode;
+        }
+
+        public static Vector3 Add(Vector3 vector1, Vector3 vector2)
+        {
+            return new Vector3(vector1.X + vector2.X, vector1.Y + vector2.Y, vector1.Z + vector2.Z);
+        }
+
         public static Vector3 Sub(Vector3 vector1, Vector3 vector2)
         {
             return new Vector3(vector1.X - vector2.X, vector1.Y - vector2.Y, vector1.Z - vector2.Z);
@@ -55,6 +86,21 @@
         public static Vector3 Div(Vector3 vector1, float value)
         {
             return new Vector3(vector1.X / value, vector1.Y / value, vector1.Z / value);
+        }
+
+        public static Vector3 Cross(Vector3 vector1, Vector3 vector2)
+        {
+            return new Vector3
+                    (
+                        (vector1.Y * vector2.Z) - (vector1.Z * vector2.Y),
+                        (vector1.Z * vector2.X) - (vector1.X * vector2.Z),
+                        (vector1.X * vector2.Y) - (vector1.Y * vector2.X)
+                    );
+        }
+
+        public static float Dot(Vector3 vector1, Vector3 vector2)
+        {
+            return ((vector1.X * vector2.X) + (vector1.Y * vector2.Y) + (vector1.Z * vector2.Z));
         }
 
     }

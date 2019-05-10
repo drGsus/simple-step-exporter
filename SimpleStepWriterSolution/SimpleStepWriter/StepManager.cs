@@ -1,6 +1,6 @@
 ﻿namespace SimpleStepWriter
 {
-    internal class StepManager : IStepManager
+    public class StepManager : IStepManager
     {
         public long NextId { get; set; }        
     }

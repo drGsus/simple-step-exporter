@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using SimpleStepWriter.Helper;
+using System.Linq;
 
 namespace SimpleStepWriter.Content.Internal
 {
@@ -22,7 +23,7 @@ namespace SimpleStepWriter.Content.Internal
         /// <param name="childrenCount">Amount of child boxes (solids).</param>
         /// <param name="childrenCoordinateSystemsIds">ID references to child coordinate systems.</param>
         /// <returns></returns>
-        internal string[] GetLines(long childrenCount, out long[] childrenCoordinateSystemsIds)
+        internal string[] GetLines(Box[] boxes, out long[] childrenCoordinateSystemsIds)
         {            
             // lines defining the beginning of our root assembly
             string[] header = new[] {
@@ -40,19 +41,24 @@ namespace SimpleStepWriter.Content.Internal
                       
             stepManager.NextId = 15;    
 
-            string[] childrenCoordinateSystems = new string[childrenCount * 4];              
+            string[] childrenCoordinateSystems = new string[boxes.Length * 4];              
             string transformRef = "";
-            childrenCoordinateSystemsIds = new long[childrenCount];
-            for (int i = 0; i < childrenCount; i++)
+            childrenCoordinateSystemsIds = new long[boxes.Length];
+            for (int i = 0; i < boxes.Length; i++)
             {
+                // see page 51 ff.: https://www.prostep.org/fileadmin/downloads/ProSTEP-iViP_Implementation-Guideline_PDM-Schema_4.3.pdf 
+                Matrix3x3 rotationMatrix = Matrix3x3.EulerAnglesToMatrix3x3(boxes[i].Rotation);
+                var z = new Vector3(rotationMatrix.A13, rotationMatrix.A23, rotationMatrix.A33);
+                var a = new Vector3(rotationMatrix.A11, rotationMatrix.A21, rotationMatrix.A31);
+                
                 childrenCoordinateSystems[i * 4 + 0]
                     = @"#" + (stepManager.NextId + 0) + " = AXIS2_PLACEMENT_3D('',#" + (stepManager.NextId + 1) + ",#" + (stepManager.NextId + 2) + ",#" + (stepManager.NextId + 3) + ");";     // #15
                 childrenCoordinateSystems[i * 4 + 1]
-                    = @"#" + (stepManager.NextId + 1) + " = CARTESIAN_POINT('',(0.,0.,0.));";
+                    = @"#" + (stepManager.NextId + 1) + " = CARTESIAN_POINT('',(" + boxes[i].Center.XString + "," + boxes[i].Center.YString + "," + boxes[i].Center.ZString + "));";
                 childrenCoordinateSystems[i * 4 + 2]
-                    = @"#" + (stepManager.NextId + 2) + " = DIRECTION('',(0.,0.,1.));";
+                    = @"#" + (stepManager.NextId + 2) + " = DIRECTION('',(" + z.XString + "," + z.YString + "," + z.ZString + "));";
                 childrenCoordinateSystems[i * 4 + 3]
-                    = @"#" + (stepManager.NextId + 3) + " = DIRECTION('',(1.,0.,0.));";
+                    = @"#" + (stepManager.NextId + 3) + " = DIRECTION('',(" + a.XString + "," + a.YString + "," + a.ZString + "));";
 
                 childrenCoordinateSystemsIds[i] = stepManager.NextId;
 

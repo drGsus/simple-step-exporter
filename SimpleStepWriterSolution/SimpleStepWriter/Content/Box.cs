@@ -1,5 +1,4 @@
 ﻿using SimpleStepWriter.Helper;
-using System;
 
 namespace SimpleStepWriter.Content
 {
@@ -33,7 +32,7 @@ namespace SimpleStepWriter.Content
     ///     
     /// 
     /// </summary>
-    class Box : IContent
+    public class Box : IContent
     {
         // interface implementation
         public IStepManager StepManager { get; private set; }
@@ -44,10 +43,7 @@ namespace SimpleStepWriter.Content
         public Vector3 Scale { get; private set; } = Vector3.One;
         public Vector3 Rotation { get; private set; } = Vector3.Zero;
         public Color Color { get; private set; } = Color.White;
-
-        // internally calculated values       
-        public Vector3 Position { get; private set; } = Vector3.Zero;
-        
+                
         // internally calculated box points
         private Vector3 pointA;
         private Vector3 pointB;
@@ -66,19 +62,16 @@ namespace SimpleStepWriter.Content
         /// <returns>The content, line by line, that we append to the step file.</returns>
         public string[] GetLines(long partCoordinateSystemId, long childIndex)
         {
-            // we calculate all other box points based on point A of the box
-            Position = Vector3.Sub(Center, Vector3.Div(Scale, 2));
-
             // calculate all points for the box
-            pointA = RotateMe(Position, Center);
-            pointB = RotateMe(new Vector3(Position.X, Position.Y, Position.Z + Scale.Z), Center);
-            pointC = RotateMe(new Vector3(Position.X + Scale.X, Position.Y, Position.Z + Scale.Z), Center);
-            pointD = RotateMe(new Vector3(Position.X + Scale.X, Position.Y, Position.Z), Center);
-            pointE = RotateMe(new Vector3(Position.X, Position.Y + Scale.Y, Position.Z), Center);
-            pointF = RotateMe(new Vector3(Position.X, Position.Y + Scale.Y, Position.Z + Scale.Z), Center);
-            pointG = RotateMe(new Vector3(Position.X + Scale.X, Position.Y + Scale.Y, Position.Z + Scale.Z), Center);
-            pointH = RotateMe(new Vector3(Position.X + Scale.X, Position.Y + Scale.Y, Position.Z), Center);
-
+            pointA = new Vector3( -(Scale.X / 2), -(Scale.Y / 2), -(Scale.Z / 2));  
+            pointB = new Vector3( -(Scale.X / 2), -(Scale.Y / 2),  (Scale.Z / 2));
+            pointC = new Vector3(  (Scale.X / 2), -(Scale.Y / 2),  (Scale.Z / 2));
+            pointD = new Vector3(  (Scale.X / 2), -(Scale.Y / 2), -(Scale.Z / 2)); 
+            pointE = new Vector3( -(Scale.X / 2),  (Scale.Y / 2), -(Scale.Z / 2)); 
+            pointF = new Vector3( -(Scale.X / 2),  (Scale.Y / 2),  (Scale.Z / 2));
+            pointG = new Vector3(  (Scale.X / 2),  (Scale.Y / 2),  (Scale.Z / 2));
+            pointH = new Vector3(  (Scale.X / 2),  (Scale.Y / 2), -(Scale.Z / 2));
+            
             // each object (part and solid) require a globally unique index value starting with 1
             long objectIndex = childIndex * 2 - 1;
             
@@ -494,30 +487,6 @@ namespace SimpleStepWriter.Content
             this.Scale = dimension;
             this.Rotation = rotation;
             this.Color = color;
-        }
-
-        /// <summary>
-        /// Helper method for rotating a point around another point.
-        /// https://www.gamefromscratch.com/post/2012/11/24/GameDev-math-recipes-Rotating-one-point-around-another-point.aspx
-        /// </summary>
-        /// <param name="point">The point you want to rotate.</param>
-        /// <param name="center">The point you want to rotate around.</param>
-        /// <returns>New rotated point.</returns>
-        private Vector3 RotateMe(Vector3 point, Vector3 center)
-        {
-            double radianAngleX = (Rotation.X) * (Math.PI / 180);
-            var rotatedY = Math.Cos(radianAngleX) * (point.Y - center.Y) - Math.Sin(radianAngleX) * (point.Z - center.Z) + center.Y;
-            var rotatedZ = Math.Sin(radianAngleX) * (point.Y - center.Y) + Math.Cos(radianAngleX) * (point.Z - center.Z) + center.Z;
-
-            double radianAngleY = (Rotation.Y) * (Math.PI / 180);
-            var rotatedXX = Math.Cos(radianAngleY) * (point.X - center.X) - Math.Sin(radianAngleY) * (rotatedZ - center.Z) + center.X;
-            var rotatedZZ = Math.Sin(radianAngleY) * (point.X - center.X) + Math.Cos(radianAngleY) * (rotatedZ - center.Z) + center.Z;
-
-            double radianAngleZ = (Rotation.Z) * (Math.PI / 180);
-            var rotatedXXX = Math.Cos(radianAngleZ) * (rotatedXX - center.X) - Math.Sin(radianAngleZ) * (rotatedY - center.Y) + center.X;
-            var rotatedYYY = Math.Sin(radianAngleZ) * (rotatedXX - center.X) + Math.Cos(radianAngleZ) * (rotatedY - center.Y) + center.Y;
-
-            return new Vector3((float)rotatedXXX, (float)rotatedYYY, (float)rotatedZZ);
         }
 
         #region Methods that provide the correct string for each point of the box

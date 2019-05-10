@@ -62,7 +62,7 @@ namespace SimpleStepWriter
             // write root assembly (required for now)
             RootAssembly rootAssembly = new RootAssembly(stepManager, AssemblyName);
             long[] childrenCoordinateSystemsIds;
-            stepLines.AddRange(rootAssembly.GetLines(fileContent.Count, out childrenCoordinateSystemsIds));
+            stepLines.AddRange(rootAssembly.GetLines(fileContent.ToArray(), out childrenCoordinateSystemsIds));
 
             // write all boxes
             for(int i = 0; i < fileContent.Count; i++)

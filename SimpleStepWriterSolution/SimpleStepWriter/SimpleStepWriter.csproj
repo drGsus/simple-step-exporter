@@ -45,6 +45,7 @@
     <Compile Include="Content\IContent.cs" />
     <Compile Include="Content\Internal\RootAssembly.cs" />
     <Compile Include="Helper\Color.cs" />
+    <Compile Include="Helper\Matrix3x3.cs" />
     <Compile Include="Helper\Vector3.cs" />
     <Compile Include="IStepManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
