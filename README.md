@@ -15,6 +15,8 @@ Each box is a separate part. All parts are organized under a root assembly thats
 
 ## Limitations
 * writing deep hierarchy information is not supported
+* _double_ type string formatting is not optimized
+* materials are not shared, every box has its own material
 * the whole project is work in progress
 
 # Quick start
@@ -45,8 +47,16 @@ These scripts simulate a right handed (Z up) coordiante system in Unity and crea
 Every 3D cube under the root object _(simulated_right_handed_coordinate_system_Z_up)_ will be exported. You are able to add multiple cubes under the root object and change the values of the Transform component, the main color of the material and the name of the GameObject.
 
 ![image](resources/unity01.JPG "unity")  
+
+# Supported/ Tested CAD software
+The following applications have already been successfully tested:
+* FreeCAD 0.18  
+* Autodesk AutoCAD 2020  
+* Autodesk Inventor 2020  
+* OPEN CASCADE CAD Assistant 1.2.1  
+
 # Example data visualized in FreeCAD
-![image](resources/shelf_freecad_screenshot_2.JPG "FreeCAD")
+![image](resources/shelf_freecad_screenshot_3.JPG "FreeCAD")
 
 # Resources
 * https://github.com/FreeCAD/FreeCAD
