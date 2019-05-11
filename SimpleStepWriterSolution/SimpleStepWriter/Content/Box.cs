@@ -28,7 +28,7 @@ namespace SimpleStepWriter.Content
     ///        /     
     ///       Z
     ///       
-    ///     Right-handed coordinate system
+    ///     Right-handed coordinate system (Y up) used for solid creation
     ///     
     /// 
     /// </summary>
@@ -69,6 +69,16 @@ namespace SimpleStepWriter.Content
             this.Scale = dimension;
             this.Rotation = rotation;
             this.Color = color;
+
+            // calculate all vertices of the box
+            pointA = new Vector3(-(Scale.X / 2), -(Scale.Y / 2), -(Scale.Z / 2));
+            pointB = new Vector3(-(Scale.X / 2), -(Scale.Y / 2),  (Scale.Z / 2));
+            pointC = new Vector3( (Scale.X / 2), -(Scale.Y / 2),  (Scale.Z / 2));
+            pointD = new Vector3( (Scale.X / 2), -(Scale.Y / 2), -(Scale.Z / 2));
+            pointE = new Vector3(-(Scale.X / 2),  (Scale.Y / 2), -(Scale.Z / 2));
+            pointF = new Vector3(-(Scale.X / 2),  (Scale.Y / 2),  (Scale.Z / 2));
+            pointG = new Vector3( (Scale.X / 2),  (Scale.Y / 2),  (Scale.Z / 2));
+            pointH = new Vector3( (Scale.X / 2),  (Scale.Y / 2), -(Scale.Z / 2));
         }
 
         /// <summary>
@@ -78,17 +88,7 @@ namespace SimpleStepWriter.Content
         /// <param name="childIndex">This childs index based on all children of the root assembly.</param>
         /// <returns>The content, line by line, that we append to the step file.</returns>
         public string[] GetLines(long partCoordinateSystemId, long childIndex)
-        {
-            // calculate all points for the box
-            pointA = new Vector3( -(Scale.X / 2), -(Scale.Y / 2), -(Scale.Z / 2));  
-            pointB = new Vector3( -(Scale.X / 2), -(Scale.Y / 2),  (Scale.Z / 2));
-            pointC = new Vector3(  (Scale.X / 2), -(Scale.Y / 2),  (Scale.Z / 2));
-            pointD = new Vector3(  (Scale.X / 2), -(Scale.Y / 2), -(Scale.Z / 2)); 
-            pointE = new Vector3( -(Scale.X / 2),  (Scale.Y / 2), -(Scale.Z / 2)); 
-            pointF = new Vector3( -(Scale.X / 2),  (Scale.Y / 2),  (Scale.Z / 2));
-            pointG = new Vector3(  (Scale.X / 2),  (Scale.Y / 2),  (Scale.Z / 2));
-            pointH = new Vector3(  (Scale.X / 2),  (Scale.Y / 2), -(Scale.Z / 2));
-            
+        {            
             // each object (part and solid) require a globally unique index value starting with 1
             long objectIndex = childIndex * 2 - 1;
             

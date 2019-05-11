@@ -23,7 +23,7 @@ namespace SimpleStepWriterCLI
             const string FILEPATH = @"C:\Users\me\Documents\local\file.step";
 
             StepFile stepFile = new StepFile(FILEPATH, "RootAssembly");
-
+            
             // debug origin cube
             stepFile.AddBox(
                 name: "origin_box_10mm_10mm_10mm_red",
@@ -31,43 +31,43 @@ namespace SimpleStepWriterCLI
                 dimension: new Vector3(10, 10, 10),
                 rotation: new Vector3(0, 0, 0),
                 color: Color.Red
-            );           
-                                    
+            );  
+            
             // let's build a shelf
 
             // left shelf stand
             stepFile.AddBox(
-                name: "shelf_stand_left",
-                center: new Vector3(-600, 700, 0),
-                dimension: new Vector3(100, 1400, 600),
-                rotation: new Vector3(0, 0, 0),
-                color: Color.Green
+             name: "shelf_stand_left",
+             center: new Vector3(-600, 0, 700),
+             dimension: new Vector3(100, 600, 1400),
+             rotation: new Vector3(0, 0, 0),
+             color: Color.Green
             );
             // right shelf stand
             stepFile.AddBox(
                 name: "shelf_stand_right",
-                center: new Vector3(600, 700, 0),
-                dimension: new Vector3(100, 1400, 600),
+                center: new Vector3(600, 0, 700),
+                dimension: new Vector3(100, 600, 1400),
                 rotation: new Vector3(0, 0, 0),
                 color: Color.Green
             );
             // top shelf level
             stepFile.AddBox(
                 name: "shelf_level_top",
-                center: new Vector3(0, 1000, 0),
-                dimension: new Vector3(1100, 50, 500),
+                center: new Vector3(0, 0, 1000),
+                dimension: new Vector3(1100, 500, 50),
                 rotation: new Vector3(20, 0, 0),
                 color: Color.Blue
             );
             // bottom shelf level
             stepFile.AddBox(
                 name: "shelf_level_bottom",
-                center: new Vector3(0, 500, 0),
-                dimension: new Vector3(1100, 50, 500),
+                center: new Vector3(0, 0, 500),
+                dimension: new Vector3(1100, 500, 50),
                 rotation: new Vector3(20, 0, 0),
                 color: Color.Yellow
             );
-            
+    
             Console.WriteLine("Want to write the file to:\n" + FILEPATH + " ?");           
             Console.ReadKey();
 
