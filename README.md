@@ -18,18 +18,18 @@ Simple C# (.NET 4) library for writing basic geometry data into STEP AP 214 (ISO
 3. Create StepFile instance, add boxes and write the Step file:
 
 
-### Add namespaces
+#### Add namespaces
 ```
 using SimpleStepWriter;  
 using SimpleStepWriter.Helper;  
 ```
 
-### Create a new StepFile instance
+#### Create a new StepFile instance
 ```
 StepFile stepFile = new StepFile(@"C:\Users\me\Documents\file.step", "MyRootAssembly");  
 ```
 
-### Add one or more boxes to the step file
+#### Add one or more boxes to the step file
 ```
 stepFile.AddBox(  
             name: "origin_10mm_dimensions",             // name of the part  
@@ -40,12 +40,12 @@ stepFile.AddBox(
         );  
 ```
 
-### Write the STEP file to the file system
+#### Write the STEP file to the file system
 ```
 bool result = stepFile.WriteFile();  
 ```
 
-### Sample.cs
+#### Sample.cs
 ![image](resources/sample_code.JPG "SampleCode")
 
 ## Unity debug environment
@@ -69,7 +69,7 @@ Every 3D cube under the root object will be exported. You are able to add multip
 
 ## Knowledge
 
-### Supported
+#### Supported
 At the moment this library only supports wrting boxes to the STEP file format. The following properties can be specified for a box:
 * part name
 * position
@@ -79,7 +79,7 @@ At the moment this library only supports wrting boxes to the STEP file format. T
 
 Each box is a separate part. All parts are organized under a root assembly thats name can be specified.
 
-### Limitations
+#### Limitations
 * only box geometry is supported, no complex geometry for now  
 * writing deep hierarchy information is not supported  
 * string formatting for _double_ type is not optimized for storage   
