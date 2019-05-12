@@ -52,7 +52,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UnitTestSample.cs" />
+    <Compile Include="Helper_Tests\Color_Tests.cs" />
+    <Compile Include="Helper_Tests\Matrix3x3_Tests.cs" />
+    <Compile Include="Helper_Tests\Vector3_Tests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
