@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/fabianschl/simple-step-exporter.svg?branch=master)](https://travis-ci.com/fabianschl/simple-step-exporter)
+
 # Simple STEP Exporter
 Simple C# (.NET 4) library for writing basic geometry data into STEP AP 214 (ISO-10303) file format.
 

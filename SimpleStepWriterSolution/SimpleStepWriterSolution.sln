@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleStepWriter", "SimpleS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleStepWriterCLI", "SimpleStepWriterCLI\SimpleStepWriterCLI.csproj", "{2F1675EB-3341-41BB-8170-895FCEB7AFA9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleStepWriter.Tests", "SimpleStepWriter.Tests\SimpleStepWriter.Tests.csproj", "{0E8A6239-7B71-4FAC-9C0D-24500F570F55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{2F1675EB-3341-41BB-8170-895FCEB7AFA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F1675EB-3341-41BB-8170-895FCEB7AFA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F1675EB-3341-41BB-8170-895FCEB7AFA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E8A6239-7B71-4FAC-9C0D-24500F570F55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E8A6239-7B71-4FAC-9C0D-24500F570F55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E8A6239-7B71-4FAC-9C0D-24500F570F55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E8A6239-7B71-4FAC-9C0D-24500F570F55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
