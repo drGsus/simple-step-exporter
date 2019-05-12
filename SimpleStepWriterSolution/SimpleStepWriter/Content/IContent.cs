@@ -1,6 +1,6 @@
 ﻿namespace SimpleStepWriter.Content
 {
-    public interface IContent
+    internal interface IContent
     {
         IStepManager StepManager { get; }        
     }

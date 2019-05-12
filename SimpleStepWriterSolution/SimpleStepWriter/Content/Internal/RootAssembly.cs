@@ -11,7 +11,7 @@ namespace SimpleStepWriter.Content.Internal
         private IStepManager stepManager;
         private string assemblyName;
         
-        internal RootAssembly(IStepManager stepManager, string name)
+        public RootAssembly(IStepManager stepManager, string name)
         {
             this.stepManager = stepManager;
             this.assemblyName = name;
@@ -23,7 +23,7 @@ namespace SimpleStepWriter.Content.Internal
         /// <param name="childrenCount">Amount of child boxes (solids).</param>
         /// <param name="childrenCoordinateSystemsIds">ID references to child coordinate systems.</param>
         /// <returns></returns>
-        internal string[] GetLines(Box[] boxes, out long[] childrenCoordinateSystemsIds)
+        public string[] GetLines(Box[] boxes, out long[] childrenCoordinateSystemsIds)
         {            
             // lines defining the beginning of our root assembly
             string[] header = new[] {

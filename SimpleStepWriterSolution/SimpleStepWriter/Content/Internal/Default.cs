@@ -9,11 +9,11 @@ namespace SimpleStepWriter.Content.Internal
     /// </summary>
     internal static class Default
     {
-        internal static string[] FileStart { get; private set; } = new[]{
+        public static string[] FileStart { get; private set; } = new[]{
             @"ISO-10303-21;"
         };
 
-        internal static string[] Header(string fileName, string fileDescription)
+        public static string[] Header(string fileName, string fileDescription)
         {
             string date = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
        
@@ -26,19 +26,19 @@ namespace SimpleStepWriter.Content.Internal
             };
         }
 
-        internal static string[] DataStart { get; set; } = new[]
+        public static string[] DataStart { get; set; } = new[]
         {
             @"DATA;",
             @"#1 = APPLICATION_PROTOCOL_DEFINITION('international standard', 'automotive_design',2000,#2);",
             @"#2 = APPLICATION_CONTEXT('core data for automotive mechanical design processes');"
         };
 
-        internal static string[] DataEnd { get; set; } = new[]
+        public static string[] DataEnd { get; set; } = new[]
         {
             @"ENDSEC;"
         };
 
-        internal static string[] FileEnd { get; set; } = new[]
+        public static string[] FileEnd { get; set; } = new[]
         {
             @"END-ISO-10303-21;"
         };

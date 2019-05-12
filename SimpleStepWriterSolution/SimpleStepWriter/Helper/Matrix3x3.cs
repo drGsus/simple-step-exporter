@@ -3,15 +3,23 @@ using System.Collections.Generic;
 
 namespace SimpleStepWriter.Helper
 {
-    public class Matrix3x3
+    internal sealed class Matrix3x3
     {
-        double[,] matrix;
+        private double[,] matrix;
         
         public double this[int i, int j]
         {
             get { return matrix[i, j]; }            
         }
 
+        /*
+         *   MATRIX:
+         * 
+         *   | A11 | A12 | A13 |     # row 1
+         *   | A21 | A22 | A23 |     # row 2
+         *   | A31 | A32 | A33 |     # row 3
+         *  
+         */
         #region properties
         public double A11 { get { return matrix[0, 0]; } set { matrix[0, 0] = value; } }
         public double A12 { get { return matrix[0, 1]; } set { matrix[0, 1] = value; } }

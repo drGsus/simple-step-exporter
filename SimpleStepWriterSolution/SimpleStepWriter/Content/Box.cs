@@ -32,7 +32,7 @@ namespace SimpleStepWriter.Content
     ///     
     /// 
     /// </summary>
-    public class Box : IContent
+    internal class Box : IContent
     {
         // interface implementation
         public IStepManager StepManager { get; private set; }

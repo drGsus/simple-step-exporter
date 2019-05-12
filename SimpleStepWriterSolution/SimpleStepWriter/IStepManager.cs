@@ -1,6 +1,6 @@
 ﻿namespace SimpleStepWriter
 {
-    public interface IStepManager
+    internal interface IStepManager
     {
         long NextId { get; set; }
     }

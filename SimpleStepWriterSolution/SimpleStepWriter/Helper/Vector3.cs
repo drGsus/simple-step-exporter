@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 
 namespace SimpleStepWriter.Helper
 {
-    public class Vector3
-    {
-        public static Vector3 Zero { get; } = new Vector3(0f, 0f, 0f);
-        public static Vector3 One { get; } = new Vector3(1f, 1f, 1f);
-        
+    public sealed class Vector3
+    {        
         public double X { get; set; }
         public double Y { get; set; }
         public double Z { get; set; }
@@ -15,7 +13,7 @@ namespace SimpleStepWriter.Helper
         {
             get
             {
-                return X.ToString("0.000000000000000", System.Globalization.CultureInfo.InvariantCulture);
+                return X.ToString("0.000000000000000", CultureInfo.InvariantCulture);
             }
         }
 
@@ -23,7 +21,7 @@ namespace SimpleStepWriter.Helper
         {
             get
             {
-                return Y.ToString("0.000000000000000", System.Globalization.CultureInfo.InvariantCulture);
+                return Y.ToString("0.000000000000000", CultureInfo.InvariantCulture);
             }
         }
 
@@ -31,15 +29,15 @@ namespace SimpleStepWriter.Helper
         {
             get
             {
-                return Z.ToString("0.000000000000000", System.Globalization.CultureInfo.InvariantCulture);
+                return Z.ToString("0.000000000000000", CultureInfo.InvariantCulture);
             }
         }
 
         public Vector3()
         {
-            X = 0.0f;
-            Y = 0.0f;
-            Z = 0.0f;
+            X = 0.0d;
+            Y = 0.0d;
+            Z = 0.0d;
         }
 
         public Vector3(double x, double y, double z)
@@ -73,22 +71,30 @@ namespace SimpleStepWriter.Helper
             return hashCode;
         }
 
-        public static Vector3 Add(Vector3 vector1, Vector3 vector2)
+        public override string ToString()
+        {
+            return XString + " " + YString + " " + ZString;
+        }
+
+        public static Vector3 Zero { get; } = new Vector3(0d, 0d, 0d);
+        public static Vector3 One { get; } = new Vector3(1d, 1d, 1d);
+
+        internal static Vector3 Add(Vector3 vector1, Vector3 vector2)
         {
             return new Vector3(vector1.X + vector2.X, vector1.Y + vector2.Y, vector1.Z + vector2.Z);
         }
 
-        public static Vector3 Sub(Vector3 vector1, Vector3 vector2)
+        internal static Vector3 Sub(Vector3 vector1, Vector3 vector2)
         {
             return new Vector3(vector1.X - vector2.X, vector1.Y - vector2.Y, vector1.Z - vector2.Z);
         }
 
-        public static Vector3 Div(Vector3 vector1, double value)
+        internal static Vector3 Div(Vector3 vector1, double scalar)
         {
-            return new Vector3(vector1.X / value, vector1.Y / value, vector1.Z / value);
+            return new Vector3(vector1.X / scalar, vector1.Y / scalar, vector1.Z / scalar);
         }
 
-        public static Vector3 Cross(Vector3 vector1, Vector3 vector2)
+        internal static Vector3 Cross(Vector3 vector1, Vector3 vector2)
         {
             return new Vector3
                     (
@@ -98,7 +104,7 @@ namespace SimpleStepWriter.Helper
                     );
         }
 
-        public static double Dot(Vector3 vector1, Vector3 vector2)
+        internal static double Dot(Vector3 vector1, Vector3 vector2)
         {
             return ((vector1.X * vector2.X) + (vector1.Y * vector2.Y) + (vector1.Z * vector2.Z));
         }

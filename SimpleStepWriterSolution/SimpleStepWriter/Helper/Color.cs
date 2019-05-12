@@ -1,6 +1,6 @@
 ﻿namespace SimpleStepWriter.Helper
 {
-    public class Color
+    public sealed class Color
     {
         public float R { get; set; }
         public float G { get; set; }
