@@ -20,7 +20,8 @@ class Sample
             center: new Vector3(0, 0, 0),               // box position in world space (based on the center of the box)
             dimension: new Vector3(10, 10, 10),         // dimension of the box (length, width, height)
             rotation: new Vector3(0, 0, 0),             // box rotation (rotated around box center)
-            color: Color.Red                            // color of the box
+            color: Color.Red,                           // color of the box
+            parentGuid: 0
         );
 
         // write the StepFile to file system

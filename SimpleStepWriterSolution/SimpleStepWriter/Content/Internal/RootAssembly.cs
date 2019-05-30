@@ -1,4 +1,5 @@
 ﻿using SimpleStepWriter.Helper;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace SimpleStepWriter.Content.Internal
@@ -6,15 +7,21 @@ namespace SimpleStepWriter.Content.Internal
     /// <summary>
     /// Base assembly that we require for export.
     /// </summary>
-    internal class RootAssembly
+    internal class RootAssembly : IContent, IParent
     {
-        private IStepManager stepManager;
-        private string assemblyName;
-        
-        public RootAssembly(IStepManager stepManager, string name)
+        public IStepManager StepManager { get; private set; }
+        public long Guid { get; private set; }
+
+        public List<IChild> Children { get; set; }
+        public string Name { get; private set; }
+                
+        public RootAssembly(IStepManager stepManager, string name, long guid)
         {
-            this.stepManager = stepManager;
-            this.assemblyName = name;
+            this.StepManager = stepManager;            
+            this.Name = name;
+            this.Guid = guid;
+            this.Children = new List<IChild>();
+
         }
 
         /// <summary>
@@ -31,7 +38,7 @@ namespace SimpleStepWriter.Content.Internal
                 @"#4 = PRODUCT_DEFINITION_SHAPE('','',#5);",
                 @"#5 = PRODUCT_DEFINITION('design','',#6,#9);",
                 @"#6 = PRODUCT_DEFINITION_FORMATION('','',#7);",
-                @"#7 = PRODUCT('" + assemblyName + "','" + assemblyName + "','',(#8));",
+                @"#7 = PRODUCT('" + Name + "','" + Name + "','',(#8));",
                 @"#8 = PRODUCT_CONTEXT('',#2,'mechanical');",
                 @"#9 = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');"                            
             };
@@ -39,7 +46,7 @@ namespace SimpleStepWriter.Content.Internal
             // We generate a separate coordiante system for each child box.
             // In addition we have one global (root assembly dependent and mandatory) coordinate system (#10-#14).           
                       
-            stepManager.NextId = 15;    
+            StepManager.NextId = 15;    
 
             string[] childrenCoordinateSystems = new string[boxes.Length * 4];              
             string transformRef = "";
@@ -52,22 +59,22 @@ namespace SimpleStepWriter.Content.Internal
                 var a = new Vector3(rotationMatrix.A11, rotationMatrix.A21, rotationMatrix.A31);
                 
                 childrenCoordinateSystems[i * 4 + 0]
-                    = @"#" + (stepManager.NextId + 0) + " = AXIS2_PLACEMENT_3D('',#" + (stepManager.NextId + 1) + ",#" + (stepManager.NextId + 2) + ",#" + (stepManager.NextId + 3) + ");";     // #15
+                    = @"#" + (StepManager.NextId + 0) + " = AXIS2_PLACEMENT_3D('',#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 2) + ",#" + (StepManager.NextId + 3) + ");";     // #15
                 childrenCoordinateSystems[i * 4 + 1]
-                    = @"#" + (stepManager.NextId + 1) + " = CARTESIAN_POINT('',(" + boxes[i].Center.XString + "," + boxes[i].Center.YString + "," + boxes[i].Center.ZString + "));";
+                    = @"#" + (StepManager.NextId + 1) + " = CARTESIAN_POINT('',(" + boxes[i].Center.XString + "," + boxes[i].Center.YString + "," + boxes[i].Center.ZString + "));";
                 childrenCoordinateSystems[i * 4 + 2]
-                    = @"#" + (stepManager.NextId + 2) + " = DIRECTION('',(" + z.XString + "," + z.YString + "," + z.ZString + "));";
+                    = @"#" + (StepManager.NextId + 2) + " = DIRECTION('',(" + z.XString + "," + z.YString + "," + z.ZString + "));";
                 childrenCoordinateSystems[i * 4 + 3]
-                    = @"#" + (stepManager.NextId + 3) + " = DIRECTION('',(" + a.XString + "," + a.YString + "," + a.ZString + "));";
+                    = @"#" + (StepManager.NextId + 3) + " = DIRECTION('',(" + a.XString + "," + a.YString + "," + a.ZString + "));";
 
-                childrenCoordinateSystemsIds[i] = stepManager.NextId;
+                childrenCoordinateSystemsIds[i] = StepManager.NextId;
 
-                transformRef += ",#" + stepManager.NextId;
-                stepManager.NextId += 4;
+                transformRef += ",#" + StepManager.NextId;
+                StepManager.NextId += 4;
             }          
                         
             string[] assemblyCoordianteSystem = new[] {               
-                @"#10 = SHAPE_REPRESENTATION('',(#11" + transformRef + "),#" + stepManager.NextId + ");",
+                @"#10 = SHAPE_REPRESENTATION('',(#11" + transformRef + "),#" + StepManager.NextId + ");",
                 @"#11 = AXIS2_PLACEMENT_3D('',#12,#13,#14);",
                 @"#12 = CARTESIAN_POINT('',(0.,0.,0.));",
                 @"#13 = DIRECTION('',(0.,0.,1.));",
@@ -76,15 +83,15 @@ namespace SimpleStepWriter.Content.Internal
             
             // add assembly footer lines
             string[] footer = new[] {                
-                @"#" + (stepManager.NextId + 0) + " = ( GEOMETRIC_REPRESENTATION_CONTEXT(3) GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#" + (stepManager.NextId + 4) + ")) GLOBAL_UNIT_ASSIGNED_CONTEXT((#" + (stepManager.NextId + 1) + ",#" + (stepManager.NextId + 2) + ",#" + (stepManager.NextId + 3) + ")) REPRESENTATION_CONTEXT('Context #1','3D Context with UNIT and UNCERTAINTY') );",       //  legacy #23
-                @"#" + (stepManager.NextId + 1) + " = ( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.) );",
-                @"#" + (stepManager.NextId + 2) + " = ( NAMED_UNIT(*) PLANE_ANGLE_UNIT() SI_UNIT($,.RADIAN.) );",
-                @"#" + (stepManager.NextId + 3) + " = ( NAMED_UNIT(*) SI_UNIT($,.STERADIAN.) SOLID_ANGLE_UNIT() );",
-                @"#" + (stepManager.NextId + 4) + " = UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(1.E-07),#" + (stepManager.NextId + 1) + ",'distance_accuracy_value','confusion accuracy');",
-                @"#" + (stepManager.NextId + 5) + " = PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(#7));"
+                @"#" + (StepManager.NextId + 0) + " = ( GEOMETRIC_REPRESENTATION_CONTEXT(3) GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 4) + ")) GLOBAL_UNIT_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 2) + ",#" + (StepManager.NextId + 3) + ")) REPRESENTATION_CONTEXT('Context #1','3D Context with UNIT and UNCERTAINTY') );",       //  legacy #23
+                @"#" + (StepManager.NextId + 1) + " = ( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.) );",
+                @"#" + (StepManager.NextId + 2) + " = ( NAMED_UNIT(*) PLANE_ANGLE_UNIT() SI_UNIT($,.RADIAN.) );",
+                @"#" + (StepManager.NextId + 3) + " = ( NAMED_UNIT(*) SI_UNIT($,.STERADIAN.) SOLID_ANGLE_UNIT() );",
+                @"#" + (StepManager.NextId + 4) + " = UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(1.E-07),#" + (StepManager.NextId + 1) + ",'distance_accuracy_value','confusion accuracy');",
+                @"#" + (StepManager.NextId + 5) + " = PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(#7));"
             };
 
-            stepManager.NextId = (stepManager.NextId + 6);
+            StepManager.NextId = (StepManager.NextId + 6);
             
             return (header.Concat(assemblyCoordianteSystem).Concat(childrenCoordinateSystems).Concat(footer)).ToArray();
         }

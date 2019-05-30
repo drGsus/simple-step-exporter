@@ -2,6 +2,8 @@
 {
     internal interface IContent
     {
-        IStepManager StepManager { get; }        
+        IStepManager StepManager { get; }    
+        long Guid { get; }
+        string Name { get; }        
     }
 }

@@ -2,7 +2,7 @@
 
 namespace SimpleStepWriter.Content
 {
-    /// <summary> Box class representing a part with a simple solid in box form that has a size, position, rotation, color and name.
+    /// <summary> Box class representing a part in the CAD hierarchy with a simple solid in box form that has a size, position, rotation, color and name.
     /// 
     ///   
     ///          E---------H
@@ -32,18 +32,22 @@ namespace SimpleStepWriter.Content
     ///     
     /// 
     /// </summary>
-    internal class Box : IContent
+    internal class Box : IContent, IChild
     {
-        // interface implementation
+        // IContent implementation
         public IStepManager StepManager { get; private set; }
+        public long Guid { get; private set; }
+        public string Name { get; private set; } = "DefaultBoxName";
+
+        // IChild implementation  
+        public IParent Parent { get; set; }
 
         // user provided values
-        public string Name { get; private set; } = "DefaultName";
-        public Vector3 Center { get; private set; } = Vector3.Zero;
-        public Vector3 Scale { get; private set; } = Vector3.One;
-        public Vector3 Rotation { get; private set; } = Vector3.Zero;
-        public Color Color { get; private set; } = Color.White;
-                
+        public Vector3 Center { get; private set; }
+        public Vector3 Scale { get; private set; }
+        public Vector3 Rotation { get; private set; }
+        public Color Color { get; private set; }
+
         // internally calculated box points
         private Vector3 pointA;
         private Vector3 pointB;
@@ -53,7 +57,7 @@ namespace SimpleStepWriter.Content
         private Vector3 pointF;
         private Vector3 pointG;
         private Vector3 pointH;
-        
+
         /// <summary>
         /// Create a new instance of a box with given parameters.
         /// </summary>
@@ -61,7 +65,20 @@ namespace SimpleStepWriter.Content
         /// <param name="dimension">Box dimension (it's the complete length of an edge, not half of it)</param>
         /// <param name="rotation">Box rotation (around the provided position).</param>
         /// <param name="color">Box color. Transparency not supported yet.</param>
-        public Box(IStepManager stepManager, string name, Vector3 center, Vector3 dimension, Vector3 rotation, Color color)
+        /// 
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stepManager">Manager that keeps track of global values relevant for the entire STEP file</param>
+        /// <param name="name">Name of the box that is visible in the CAD hierarchy.</param>     
+        /// <param name="center">Center point of the box in local space.</param>
+        /// <param name="dimension">Box dimension (it's the complete length of an edge, not half of it)</param>
+        /// <param name="rotation">Box rotation (around the provided center).</param>
+        /// <param name="color">Box color. Transparency not supported yet.</param>
+        /// <param name="guid">Uniquely identifies this IContent object in the entire assembly.</param>       
+        public Box(IStepManager stepManager, string name, Vector3 center, Vector3 dimension, Vector3 rotation, Color color, long guid)
         {
             this.StepManager = stepManager;
             this.Name = name;
@@ -69,7 +86,8 @@ namespace SimpleStepWriter.Content
             this.Scale = dimension;
             this.Rotation = rotation;
             this.Color = color;
-
+            this.Guid = guid;
+          
             // calculate all vertices of the box
             pointA = new Vector3(-(Scale.X / 2), -(Scale.Y / 2), -(Scale.Z / 2));
             pointB = new Vector3(-(Scale.X / 2), -(Scale.Y / 2),  (Scale.Z / 2));
@@ -450,6 +468,7 @@ namespace SimpleStepWriter.Content
                 @"#" + (StepManager.NextId + 350) + " = ( NAMED_UNIT(*) PLANE_ANGLE_UNIT() SI_UNIT($,.RADIAN.) );",
                 @"#" + (StepManager.NextId + 351) + " = ( NAMED_UNIT(*) SI_UNIT($,.STERADIAN.) SOLID_ANGLE_UNIT() );",
                 @"#" + (StepManager.NextId + 352) + " = UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(1.E-07),#" + (StepManager.NextId + 349) + ",'distance_accuracy_value','confusion accuracy'); ",
+                // hierarchy info start
                 @"#" + (StepManager.NextId + 353) + " = SHAPE_DEFINITION_REPRESENTATION(#" + (StepManager.NextId + 354) + ",#" + (StepManager.NextId + 17) + ");",
                 @"#" + (StepManager.NextId + 354) + " = PRODUCT_DEFINITION_SHAPE('','',#" + (StepManager.NextId + 355) + ");",
                 @"#" + (StepManager.NextId + 355) + " = PRODUCT_DEFINITION('design','',#" + (StepManager.NextId + 356) + ",#" + (StepManager.NextId + 359) + ");",
@@ -469,8 +488,8 @@ namespace SimpleStepWriter.Content
                 @"#" + (StepManager.NextId + 369) + " = PRODUCT_DEFINITION_SHAPE('Placement','Placement of an item',#" + (StepManager.NextId + 370) + ");",
                 @"#" + (StepManager.NextId + 370) + " = NEXT_ASSEMBLY_USAGE_OCCURRENCE('" + (objectIndex + 1) + "','=>[0:1:1:" + (objectIndex + 1) + "]','',#5,#" + (StepManager.NextId + 2) + ",$);",
                 @"#" + (StepManager.NextId + 371) + " = PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(#" + (StepManager.NextId + 4) + "));",
-                @"#" + (StepManager.NextId + 372) + " = MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION('',(#" + (StepManager.NextId + 373) + "),#" + (StepManager.NextId + 348) + ");",
                 // material section start
+                @"#" + (StepManager.NextId + 372) + " = MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION('',(#" + (StepManager.NextId + 373) + "),#" + (StepManager.NextId + 348) + ");",
                 @"#" + (StepManager.NextId + 373) + " = STYLED_ITEM('color',(#" + (StepManager.NextId + 374) + "),#" + (StepManager.NextId + 18) + ");",
                 @"#" + (StepManager.NextId + 374) + " = PRESENTATION_STYLE_ASSIGNMENT((#" + (StepManager.NextId + 375) + ",#" + (StepManager.NextId + 381) + "));",
                 @"#" + (StepManager.NextId + 375) + " = SURFACE_STYLE_USAGE(.BOTH.,#" + (StepManager.NextId + 376) + ");",

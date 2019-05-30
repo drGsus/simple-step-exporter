@@ -41,9 +41,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Content\Box.cs" />
+    <Compile Include="Content\Group.cs" />
+    <Compile Include="Content\IChild.cs" />
     <Compile Include="Content\Internal\Default.cs" />
     <Compile Include="Content\IContent.cs" />
     <Compile Include="Content\Internal\RootAssembly.cs" />
+    <Compile Include="Content\IParent.cs" />
     <Compile Include="Helper\Color.cs" />
     <Compile Include="Helper\Matrix3x3.cs" />
     <Compile Include="Helper\Vector3.cs" />

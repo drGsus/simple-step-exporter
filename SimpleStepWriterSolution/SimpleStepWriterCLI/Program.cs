@@ -23,7 +23,43 @@ namespace SimpleStepWriterCLI
             const string FILEPATH = @"C:\Users\me\Documents\local\file.step";
 
             StepFile stepFile = new StepFile(FILEPATH, "RootAssembly");
-            
+                        
+            // let's build demo hierarchy
+            long assemblyGuid = stepFile.AddGroup(
+                name: "assembly",
+                center: new Vector3(0, 0, 0),               
+                rotation: new Vector3(0, 0, 0),
+                parentGuid: 0
+               );
+
+            stepFile.AddBox(
+                name: "box1",
+                center: new Vector3(600, 0, 700),
+                dimension: new Vector3(100, 600, 1400),
+                rotation: new Vector3(0, 0, 0),
+                color: Color.Green,
+                parentGuid: assemblyGuid
+               );
+
+            stepFile.AddBox(
+               name: "box2",
+               center: new Vector3(600, 0, 700),
+               dimension: new Vector3(100, 600, 1400),
+               rotation: new Vector3(0, 0, 0),
+               color: Color.Green,
+               parentGuid: assemblyGuid
+              );
+
+            stepFile.AddBox(
+              name: "box3",
+              center: new Vector3(600, 0, 700),
+              dimension: new Vector3(100, 600, 1400),
+              rotation: new Vector3(0, 0, 0),
+              color: Color.Green,
+              parentGuid: 0
+             );
+
+            /*
             // debug origin cube
             stepFile.AddBox(
                 name: "origin_box_10mm_10mm_10mm_red",
@@ -31,10 +67,10 @@ namespace SimpleStepWriterCLI
                 dimension: new Vector3(10, 10, 10),
                 rotation: new Vector3(0, 0, 0),
                 color: Color.Red
-            );  
-            
-            // let's build a shelf
+            );
 
+            // let's build a shelf
+            
             // left shelf stand
             stepFile.AddBox(
              name: "shelf_stand_left",
@@ -67,7 +103,8 @@ namespace SimpleStepWriterCLI
                 rotation: new Vector3(20, 0, 0),
                 color: Color.Yellow
             );
-    
+            */
+
             Console.WriteLine("Want to write the file to:\n" + FILEPATH + " ?");           
             Console.ReadKey();
 
