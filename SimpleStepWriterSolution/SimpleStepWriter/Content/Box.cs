@@ -1,4 +1,5 @@
 ﻿using SimpleStepWriter.Helper;
+using System.Linq;
 
 namespace SimpleStepWriter.Content
 {
@@ -57,19 +58,9 @@ namespace SimpleStepWriter.Content
         private Vector3 pointF;
         private Vector3 pointG;
         private Vector3 pointH;
-
+        
         /// <summary>
-        /// Create a new instance of a box with given parameters.
-        /// </summary>
-        /// <param name="name">Name of the box that is visible in the CAD hierarchy.</param>     
-        /// <param name="dimension">Box dimension (it's the complete length of an edge, not half of it)</param>
-        /// <param name="rotation">Box rotation (around the provided position).</param>
-        /// <param name="color">Box color. Transparency not supported yet.</param>
-        /// 
-
-
-        /// <summary>
-        /// 
+        /// ...
         /// </summary>
         /// <param name="stepManager">Manager that keeps track of global values relevant for the entire STEP file</param>
         /// <param name="name">Name of the box that is visible in the CAD hierarchy.</param>     
@@ -99,20 +90,11 @@ namespace SimpleStepWriter.Content
             pointH = new Vector3( (Scale.X / 2),  (Scale.Y / 2), -(Scale.Z / 2));
         }
 
-        /// <summary>
-        /// Get STEP file lines.
-        /// </summary>
-        /// <param name="partCoordinateSystemId">Id that references the part coordiante system.</param>
-        /// <param name="childIndex">This childs index based on all children of the root assembly.</param>
-        /// <returns>The content, line by line, that we append to the step file.</returns>
-        public string[] GetLines(long partCoordinateSystemId, long childIndex)
-        {            
-            // each object (part and solid) require a globally unique index value starting with 1
-            long objectIndex = childIndex * 2 - 1;
-            
+        public string[] GetLines(int childIndex)
+        {
             // return lines that represent a box that considers the previously provided information
-            string[] lines = new string[] {
-                // part section start
+            string[] lines = new string[]
+            {
                 @"#" + (StepManager.NextId + 0) + " = SHAPE_DEFINITION_REPRESENTATION(#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 7) + ");",
                 @"#" + (StepManager.NextId + 1) + " = PRODUCT_DEFINITION_SHAPE('','',#" + (StepManager.NextId + 2) + ");",
                 @"#" + (StepManager.NextId + 2) + " = PRODUCT_DEFINITION('design','',#" + (StepManager.NextId + 3) + ",#" + (StepManager.NextId + 6) + ");",
@@ -130,9 +112,9 @@ namespace SimpleStepWriter.Content
                 @"#" + (StepManager.NextId + 14) + " = ( NAMED_UNIT(*) PLANE_ANGLE_UNIT() SI_UNIT($,.RADIAN.) );",
                 @"#" + (StepManager.NextId + 15) + " = ( NAMED_UNIT(*) SI_UNIT($,.STERADIAN.) SOLID_ANGLE_UNIT() );",
                 @"#" + (StepManager.NextId + 16) + " = UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(1.E-07),#" + (StepManager.NextId + 13) + ",'distance_accuracy_value','confusion accuracy'); ",
+                // geometry section start
                 @"#" + (StepManager.NextId + 17) + " = ADVANCED_BREP_SHAPE_REPRESENTATION('',(#11,#" + (StepManager.NextId + 18) + "),#" + (StepManager.NextId + 348) + ");",
                 @"#" + (StepManager.NextId + 18) + " = MANIFOLD_SOLID_BREP('',#" + (StepManager.NextId + 19) + ");",
-                // geometry section start
                 @"#" + (StepManager.NextId + 19) + " = CLOSED_SHELL('',(#" + (StepManager.NextId + 20) + ",#" + (StepManager.NextId + 140) + ",#" + (StepManager.NextId + 240) + ",#" + (StepManager.NextId + 287) + ",#" + (StepManager.NextId + 334) + ",#" + (StepManager.NextId + 341) + "));",
                 @"#" + (StepManager.NextId + 20) + " = ADVANCED_FACE('',(#" + (StepManager.NextId + 21) + "),#" + (StepManager.NextId + 35) + ",.F.);",
                 @"#" + (StepManager.NextId + 21) + " = FACE_BOUND('',#" + (StepManager.NextId + 22) + ",.F.);",
@@ -462,32 +444,47 @@ namespace SimpleStepWriter.Content
                 @"#" + (StepManager.NextId + 345) + " = ORIENTED_EDGE('',*,*,#" + (StepManager.NextId + 266) + ",.T.);",
                 @"#" + (StepManager.NextId + 346) + " = ORIENTED_EDGE('',*,*,#" + (StepManager.NextId + 220) + ",.T.);",
                 @"#" + (StepManager.NextId + 347) + " = ORIENTED_EDGE('',*,*,#" + (StepManager.NextId + 313) + ",.F.);",
-                // geometry section end & solid info start
+                // geometry section end with scale info
                 @"#" + (StepManager.NextId + 348) + " = ( GEOMETRIC_REPRESENTATION_CONTEXT(3) GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 352) + ")) GLOBAL_UNIT_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 349) + ",#" + (StepManager.NextId + 350) + ",#" + (StepManager.NextId + 351) + ")) REPRESENTATION_CONTEXT('Context #1','3D Context with UNIT and UNCERTAINTY')); ",
                 @"#" + (StepManager.NextId + 349) + " = ( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.) );",
                 @"#" + (StepManager.NextId + 350) + " = ( NAMED_UNIT(*) PLANE_ANGLE_UNIT() SI_UNIT($,.RADIAN.) );",
                 @"#" + (StepManager.NextId + 351) + " = ( NAMED_UNIT(*) SI_UNIT($,.STERADIAN.) SOLID_ANGLE_UNIT() );",
                 @"#" + (StepManager.NextId + 352) + " = UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(1.E-07),#" + (StepManager.NextId + 349) + ",'distance_accuracy_value','confusion accuracy'); ",
-                // hierarchy info start
+                // solid definition
                 @"#" + (StepManager.NextId + 353) + " = SHAPE_DEFINITION_REPRESENTATION(#" + (StepManager.NextId + 354) + ",#" + (StepManager.NextId + 17) + ");",
                 @"#" + (StepManager.NextId + 354) + " = PRODUCT_DEFINITION_SHAPE('','',#" + (StepManager.NextId + 355) + ");",
                 @"#" + (StepManager.NextId + 355) + " = PRODUCT_DEFINITION('design','',#" + (StepManager.NextId + 356) + ",#" + (StepManager.NextId + 359) + ");",
                 @"#" + (StepManager.NextId + 356) + " = PRODUCT_DEFINITION_FORMATION('','',#" + (StepManager.NextId + 357) + ");",
                 @"#" + (StepManager.NextId + 357) + " = PRODUCT('" + Name + "_box_solid" + "','" + Name + "_box_solid" + "','',(#" + (StepManager.NextId + 358) + "));",
                 @"#" + (StepManager.NextId + 358) + " = PRODUCT_CONTEXT('',#2,'mechanical');",
-                @"#" + (StepManager.NextId + 359) + " = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');",
-                @"#" + (StepManager.NextId + 360) + " = CONTEXT_DEPENDENT_SHAPE_REPRESENTATION(#" + (StepManager.NextId + 361) + ",#" + (StepManager.NextId + 363) + ");",
-                @"#" + (StepManager.NextId + 361) + " = ( REPRESENTATION_RELATIONSHIP('','',#" + (StepManager.NextId + 17) + ",#" + (StepManager.NextId + 7) + ") REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION(#" + (StepManager.NextId + 362) + ") SHAPE_REPRESENTATION_RELATIONSHIP());",
-                @"#" + (StepManager.NextId + 362) + " = ITEM_DEFINED_TRANSFORMATION('','',#11,#" + (StepManager.NextId + 8) + ");",
+                @"#" + (StepManager.NextId + 359) + " = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');"               
+            };
+
+            // solid to part mapping (always there for Box objects)
+            var staticHierarchy = new[]
+            {
+                @"#" + (StepManager.NextId + 360) + " = CONTEXT_DEPENDENT_SHAPE_REPRESENTATION(#" + (StepManager.NextId + 361) + ",#" + (StepManager.NextId + 363) + ");",       // #782
+                @"#" + (StepManager.NextId + 361) + " = ( REPRESENTATION_RELATIONSHIP('','',#" + (StepManager.NextId + 17) + ",#" + (StepManager.NextId + 7) + ") REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION(#" + (StepManager.NextId + 362) + ") SHAPE_REPRESENTATION_RELATIONSHIP() );",  // solid2 to box2 ([ADVANCED_BREP_]SHAPE_REPRESENTATION to SHAPE_REPRESENTATION)
+                @"#" + (StepManager.NextId + 362) + " = ITEM_DEFINED_TRANSFORMATION('','',#11,#" + (StepManager.NextId + 8) + ");",                             // #11 (root) to box2 (AXIS2_PLACEMENT_3D to AXIS2_PLACEMENT_3D)
                 @"#" + (StepManager.NextId + 363) + " = PRODUCT_DEFINITION_SHAPE('Placement','Placement of an item',#" + (StepManager.NextId + 364) + ");",
-                @"#" + (StepManager.NextId + 364) + " = NEXT_ASSEMBLY_USAGE_OCCURRENCE('" + objectIndex + "','=>[0:1:1:" + objectIndex + "]','',#" + (StepManager.NextId + 2) + ",#" + (StepManager.NextId + 355) + ",$);",
-                @"#" + (StepManager.NextId + 365) + " = PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(#" + (StepManager.NextId + 357) + "));",
-                @"#" + (StepManager.NextId + 366) + " = CONTEXT_DEPENDENT_SHAPE_REPRESENTATION(#" + (StepManager.NextId + 367) + ",#" + (StepManager.NextId + 369) + ");",
-                @"#" + (StepManager.NextId + 367) + " = ( REPRESENTATION_RELATIONSHIP('','',#" + (StepManager.NextId + 7) + ",#10) REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION(#" + (StepManager.NextId + 368) + ") SHAPE_REPRESENTATION_RELATIONSHIP());",
-                @"#" + (StepManager.NextId + 368) + " = ITEM_DEFINED_TRANSFORMATION('','',#11,#" + partCoordinateSystemId + ");",
+                @"#" + (StepManager.NextId + 364) + " = NEXT_ASSEMBLY_USAGE_OCCURRENCE('" + (StepManager.ObjectIndex + 0) + "','=>[0:1:1:" + (StepManager.ObjectIndex + 0) + "]','',#" + (StepManager.NextId + 2) + ",#" + (StepManager.NextId + 355) + ",$);",                                // box2 to solid2 (PRODUCT_DEFINITION to PRODUCT_DEFINITION)
+                @"#" + (StepManager.NextId + 365) + " = PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(#" + (StepManager.NextId + 357) + "));"                       // solid2 PRODUCT"
+            };                        
+            
+            var parentHierarchy = new[]
+            {
+                @"#" + (StepManager.NextId + 366) + " = CONTEXT_DEPENDENT_SHAPE_REPRESENTATION(#" + (StepManager.NextId + 367) + ",#" + (StepManager.NextId + 369) + ");",   // #788
+                @"#" + (StepManager.NextId + 367) + " = ( REPRESENTATION_RELATIONSHIP('','',#" + (StepManager.NextId + 7) + ",#" + Parent.StepId_SHAPE_REPRESENTATION + ") REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION(#" + (StepManager.NextId + 368) + ") SHAPE_REPRESENTATION_RELATIONSHIP() );",  // box2 to assembly (SHAPE_REPRESENTATION to SHAPE_REPRESENTATION)         
+                @"#" + (StepManager.NextId + 368) + " = ITEM_DEFINED_TRANSFORMATION('','',#11,#" + Parent.ChildrenStepId_AXIS2_PLACEMENT_3D[childIndex] + ");",  // #11 (root) to assembly (box2 transfoprm defined in assembly) (AXIS2_PLACEMENT_3D to AXIS2_PLACEMENT_3D)
                 @"#" + (StepManager.NextId + 369) + " = PRODUCT_DEFINITION_SHAPE('Placement','Placement of an item',#" + (StepManager.NextId + 370) + ");",
-                @"#" + (StepManager.NextId + 370) + " = NEXT_ASSEMBLY_USAGE_OCCURRENCE('" + (objectIndex + 1) + "','=>[0:1:1:" + (objectIndex + 1) + "]','',#5,#" + (StepManager.NextId + 2) + ",$);",
-                @"#" + (StepManager.NextId + 371) + " = PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(#" + (StepManager.NextId + 4) + "));",
+                @"#" + (StepManager.NextId + 370) + " = NEXT_ASSEMBLY_USAGE_OCCURRENCE('" + (StepManager.ObjectIndex + 1) + "','=>[0:1:1:" + (StepManager.ObjectIndex + 1) + "]','',#" + Parent.StepId_PRODUCT_DEFINITION + ",#" + (StepManager.NextId + 2) + ",$);",     // assembly to box2  (PRODUCT_DEFINITION to PRODUCT_DEFINITION)
+                @"#" + (StepManager.NextId + 371) + " = PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(#" + (StepManager.NextId + 4) + "));"   // box2 PRODUCT
+            };
+
+            StepManager.ObjectIndex += 2;
+
+            var material = new[]
+            {
                 // material section start
                 @"#" + (StepManager.NextId + 372) + " = MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION('',(#" + (StepManager.NextId + 373) + "),#" + (StepManager.NextId + 348) + ");",
                 @"#" + (StepManager.NextId + 373) + " = STYLED_ITEM('color',(#" + (StepManager.NextId + 374) + "),#" + (StepManager.NextId + 18) + ");",
@@ -504,7 +501,7 @@ namespace SimpleStepWriter.Content
 
             StepManager.NextId = (StepManager.NextId + 383);
 
-            return lines;
+            return (lines.Concat(staticHierarchy).Concat(parentHierarchy).Concat(material)).ToArray();           
         }
 
     }

@@ -21,11 +21,16 @@ namespace SimpleStepWriter.Content
 
         //  IParent implementation
         public List<IChild> Children { get; set; }
+        public long[] ChildrenStepId_AXIS2_PLACEMENT_3D { get; private set; }
+        public long StepId_SHAPE_REPRESENTATION { get; private set; }
+        public long StepId_PRODUCT_DEFINITION { get; private set; }
 
         // user provided values
         public string Name { get; private set; } = "DefaultGroupName";
         public Vector3 Center { get; private set; }       
         public Vector3 Rotation { get; private set; }
+
+       
 
         /// <summary>
         /// Initialize the object with user defined values.
@@ -47,83 +52,84 @@ namespace SimpleStepWriter.Content
             this.Rotation = Vector3.Zero;
         }
 
-        /// <summary>
-        /// Get all STEP lines required for root assembly.
-        /// </summary>
-        /// <param name="childrenCount">Amount of child boxes (solids).</param>
-        /// <param name="childrenCoordinateSystemsIds">ID references to child coordinate systems.</param>
-        /// <returns></returns>
-        public string[] GetLines(Box[] boxes, out long[] childrenCoordinateSystemsIds)
+        public string[] GetLines(int childIndex)
         {
-            // TODO: check references
             // lines defining the beginning of our root assembly
             string[] header = new[] {
-                @"#" + (StepManager.NextId + 0) + " = SHAPE_DEFINITION_REPRESENTATION(#4,#10);",               // #3
-                @"#" + (StepManager.NextId + 1) + " = PRODUCT_DEFINITION_SHAPE('','',#5);",
-                @"#" + (StepManager.NextId + 2) + " = PRODUCT_DEFINITION('design','',#6,#9);",
-                @"#" + (StepManager.NextId + 3) + " = PRODUCT_DEFINITION_FORMATION('','',#7);",
-                @"#" + (StepManager.NextId + 4) + " = PRODUCT('" + Name + "','" + Name + "','',(#8));",
+                @"#" + (StepManager.NextId + 0) + " = SHAPE_DEFINITION_REPRESENTATION(#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 7) + ");",        // #3
+                @"#" + (StepManager.NextId + 1) + " = PRODUCT_DEFINITION_SHAPE('','',#" + (StepManager.NextId + 2) + ");",
+                @"#" + (StepManager.NextId + 2) + " = PRODUCT_DEFINITION('design','',#" + (StepManager.NextId + 3) + ",#" + (StepManager.NextId + 6) + ");",
+                @"#" + (StepManager.NextId + 3) + " = PRODUCT_DEFINITION_FORMATION('','',#" + (StepManager.NextId + 4) + ");",
+                @"#" + (StepManager.NextId + 4) + " = PRODUCT('" + Name + "','" + Name + "','',(#" + (StepManager.NextId + 5) + "));",
                 @"#" + (StepManager.NextId + 5) + " = PRODUCT_CONTEXT('',#2,'mechanical');",
-                @"#" + (StepManager.NextId + 6) + " = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');"
+                @"#" + (StepManager.NextId + 6) + " = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');"           // #9
             };
 
-            // We generate a separate coordiante system for each child.
+            long stepId_PRODUCT = (StepManager.NextId + 4);
+
+            StepId_PRODUCT_DEFINITION = (StepManager.NextId + 2);
+
+            // We generate a separate coordiante system for each child box.
             // In addition we have one global (root assembly dependent and mandatory) coordinate system (#10-#14).           
 
-            //StepManager.NextId += 12;
+            StepId_SHAPE_REPRESENTATION = (StepManager.NextId + 7);
 
-            string[] childrenCoordinateSystems = new string[boxes.Length * 4];
+            StepManager.NextId += 8;
+
+            string[] childrenCoordinateSystems = new string[Children.Count * 4];
             string transformRef = "";
-            childrenCoordinateSystemsIds = new long[boxes.Length];
-            for (int i = 0; i < boxes.Length; i++)
+            ChildrenStepId_AXIS2_PLACEMENT_3D = new long[Children.Count];
+            for (int i = 0; i < Children.Count; i++)
             {
                 // see page 51 ff.: https://www.prostep.org/fileadmin/downloads/ProSTEP-iViP_Implementation-Guideline_PDM-Schema_4.3.pdf 
-                Matrix3x3 rotationMatrix = Matrix3x3.EulerAnglesToMatrix3x3(boxes[i].Rotation);
+                Matrix3x3 rotationMatrix = Matrix3x3.EulerAnglesToMatrix3x3(Children[i].Rotation);
                 var z = new Vector3(rotationMatrix.A13, rotationMatrix.A23, rotationMatrix.A33);
                 var a = new Vector3(rotationMatrix.A11, rotationMatrix.A21, rotationMatrix.A31);
 
                 childrenCoordinateSystems[i * 4 + 0]
                     = @"#" + (StepManager.NextId + 0) + " = AXIS2_PLACEMENT_3D('',#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 2) + ",#" + (StepManager.NextId + 3) + ");";     // #15
                 childrenCoordinateSystems[i * 4 + 1]
-                    = @"#" + (StepManager.NextId + 1) + " = CARTESIAN_POINT('',(" + boxes[i].Center.XString + "," + boxes[i].Center.YString + "," + boxes[i].Center.ZString + "));";
+                    = @"#" + (StepManager.NextId + 1) + " = CARTESIAN_POINT('',(" + Children[i].Center.XString + "," + Children[i].Center.YString + "," + Children[i].Center.ZString + "));";
                 childrenCoordinateSystems[i * 4 + 2]
                     = @"#" + (StepManager.NextId + 2) + " = DIRECTION('',(" + z.XString + "," + z.YString + "," + z.ZString + "));";
                 childrenCoordinateSystems[i * 4 + 3]
                     = @"#" + (StepManager.NextId + 3) + " = DIRECTION('',(" + a.XString + "," + a.YString + "," + a.ZString + "));";
-
-                childrenCoordinateSystemsIds[i] = StepManager.NextId;
+                
+                ChildrenStepId_AXIS2_PLACEMENT_3D[i] = StepManager.NextId;
 
                 transformRef += ",#" + StepManager.NextId;
                 StepManager.NextId += 4;
             }
 
-            string[] assemblyCoordianteSystemLink = new[] {
-                @"#" + (StepManager.NextId + 7) + " = SHAPE_REPRESENTATION('',(#11" + transformRef + "),#" + (StepManager.NextId + 8) + ");"           // #10               
+            string[] assemblyCoordianteSystem = new[] {
+                @"#" + StepId_SHAPE_REPRESENTATION + " = SHAPE_REPRESENTATION('',(#11" + transformRef + "),#" + StepManager.NextId + ");",               
             };
 
             // add assembly footer lines
-            string[] scale = new[] {
-                @"#" + (StepManager.NextId + 8) + " = ( GEOMETRIC_REPRESENTATION_CONTEXT(3) GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 12) + ")) GLOBAL_UNIT_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 9) + ",#" + (StepManager.NextId + 10) + ",#" + (StepManager.NextId + 11) + ")) REPRESENTATION_CONTEXT('Context #1','3D Context with UNIT and UNCERTAINTY') );",       //  legacy #23
-                @"#" + (StepManager.NextId + 9) + " = ( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.) );",
-                @"#" + (StepManager.NextId + 10) + " = ( NAMED_UNIT(*) PLANE_ANGLE_UNIT() SI_UNIT($,.RADIAN.) );",
-                @"#" + (StepManager.NextId + 11) + " = ( NAMED_UNIT(*) SI_UNIT($,.STERADIAN.) SOLID_ANGLE_UNIT() );",
-                @"#" + (StepManager.NextId + 12) + " = UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(1.E-07),#" + (StepManager.NextId + 9) + ",'distance_accuracy_value','confusion accuracy');"
-                //@"#" + (StepManager.NextId + 13) + " = PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(#7));"
+            string[] footer = new[] {
+                @"#" + (StepManager.NextId + 0) + " = ( GEOMETRIC_REPRESENTATION_CONTEXT(3) GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 4) + ")) GLOBAL_UNIT_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 2) + ",#" + (StepManager.NextId + 3) + ")) REPRESENTATION_CONTEXT('Context #1','3D Context with UNIT and UNCERTAINTY') );",       //  legacy #23
+                @"#" + (StepManager.NextId + 1) + " = ( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.) );",
+                @"#" + (StepManager.NextId + 2) + " = ( NAMED_UNIT(*) PLANE_ANGLE_UNIT() SI_UNIT($,.RADIAN.) );",
+                @"#" + (StepManager.NextId + 3) + " = ( NAMED_UNIT(*) SI_UNIT($,.STERADIAN.) SOLID_ANGLE_UNIT() );",
+                @"#" + (StepManager.NextId + 4) + " = UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(1.E-07),#" + (StepManager.NextId + 1) + ",'distance_accuracy_value','confusion accuracy');"                
             };
 
-            // TODO: search and link references
-            string[] hierarchy = new[] {
-                @"#" + (StepManager.NextId + 13) + " = CONTEXT_DEPENDENT_SHAPE_REPRESENTATION(#" + (StepManager.NextId + 14) + ",#" + (StepManager.NextId + 16) + ");",       // #794
-                @"#" + (StepManager.NextId + 14) + " = ( REPRESENTATION_RELATIONSHIP('','',#36,#10) REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION(#" + (StepManager.NextId + 15) + ") SHAPE_REPRESENTATION_RELATIONSHIP() );",     // assembly to #10 (root)  (SHAPE_REPRESENTATION to SHAPE_REPRESENTATION)
-                @"#" + (StepManager.NextId + 15) + " = ITEM_DEFINED_TRANSFORMATION('','',#11,#15);",                                                                                                                                 // #11 (root) to root (assembly transform defined in root)
-                @"#" + (StepManager.NextId + 16) + " = PRODUCT_DEFINITION_SHAPE('Placement','Placement of an item',#" + (StepManager.NextId + 17) + ");",
-                @"#" + (StepManager.NextId + 17) + " = NEXT_ASSEMBLY_USAGE_OCCURRENCE('62','=>[0:1:1:5]','',#5,#31,$);",                                                                                                             // #5 (root) to assembly  (PRODUCT_DEFINITION to PRODUCT_DEFINITION)
-                @"#" + (StepManager.NextId + 18) + " = PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(#33));"                                                                                                                            // assembly PRODUCT     
+            StepManager.NextId = (StepManager.NextId + 5);
+            
+            var parentHierarchy = new[]
+            {
+                @"#" + (StepManager.NextId + 0) + " = CONTEXT_DEPENDENT_SHAPE_REPRESENTATION(#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 3) + ");",   // #788
+                @"#" + (StepManager.NextId + 1) + " = ( REPRESENTATION_RELATIONSHIP('','',#" + StepId_SHAPE_REPRESENTATION + ",#" + Parent.StepId_SHAPE_REPRESENTATION + ") REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION(#790) SHAPE_REPRESENTATION_RELATIONSHIP() );",  // box2 to assembly (SHAPE_REPRESENTATION to SHAPE_REPRESENTATION)         
+                @"#" + (StepManager.NextId + 2) + " = ITEM_DEFINED_TRANSFORMATION('','',#11,#" + Parent.ChildrenStepId_AXIS2_PLACEMENT_3D[childIndex] + ");",  // #11 (root) to assembly (box2 transfoprm defined in assembly) (AXIS2_PLACEMENT_3D to AXIS2_PLACEMENT_3D)
+                @"#" + (StepManager.NextId + 3) + " = PRODUCT_DEFINITION_SHAPE('Placement','Placement of an item',#" + (StepManager.NextId + 4) + ");",
+                @"#" + (StepManager.NextId + 4) + " = NEXT_ASSEMBLY_USAGE_OCCURRENCE('" + (StepManager.ObjectIndex + 0) + "','=>[0:1:1:" + (StepManager.ObjectIndex + 0) + "]','',#" + Parent.StepId_PRODUCT_DEFINITION + ",#" + StepId_PRODUCT_DEFINITION + ",$);",     // assembly to box2  (PRODUCT_DEFINITION to PRODUCT_DEFINITION)
+                @"#" + (StepManager.NextId + 5) + " = PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(#" + stepId_PRODUCT + "));"   // box2 PRODUCT
             };
 
-            //StepManager.NextId = (StepManager.NextId + 6);
+            StepManager.ObjectIndex += 1;
+            StepManager.NextId = (StepManager.NextId + 6);
 
-            return (header.Concat(assemblyCoordianteSystemLink).Concat(childrenCoordinateSystems).Concat(scale)).ToArray();
+            return (header.Concat(assemblyCoordianteSystem).Concat(childrenCoordinateSystems).Concat(footer).Concat(parentHierarchy)).ToArray();
         }
 
     }
