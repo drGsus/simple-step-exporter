@@ -119,7 +119,7 @@ namespace SimpleStepWriter.Content
             var parentHierarchy = new[]
             {
                 @"#" + (StepManager.NextId + 0) + " = CONTEXT_DEPENDENT_SHAPE_REPRESENTATION(#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 3) + ");",   // #788
-                @"#" + (StepManager.NextId + 1) + " = ( REPRESENTATION_RELATIONSHIP('','',#" + StepId_SHAPE_REPRESENTATION + ",#" + Parent.StepId_SHAPE_REPRESENTATION + ") REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION(#790) SHAPE_REPRESENTATION_RELATIONSHIP() );",  // box2 to assembly (SHAPE_REPRESENTATION to SHAPE_REPRESENTATION)         
+                @"#" + (StepManager.NextId + 1) + " = ( REPRESENTATION_RELATIONSHIP('','',#" + StepId_SHAPE_REPRESENTATION + ",#" + Parent.StepId_SHAPE_REPRESENTATION + ") REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION(#" + (StepManager.NextId + 2) + ") SHAPE_REPRESENTATION_RELATIONSHIP() );",  // box2 to assembly (SHAPE_REPRESENTATION to SHAPE_REPRESENTATION)         
                 @"#" + (StepManager.NextId + 2) + " = ITEM_DEFINED_TRANSFORMATION('','',#11,#" + Parent.ChildrenStepId_AXIS2_PLACEMENT_3D[childIndex] + ");",  // #11 (root) to assembly (box2 transfoprm defined in assembly) (AXIS2_PLACEMENT_3D to AXIS2_PLACEMENT_3D)
                 @"#" + (StepManager.NextId + 3) + " = PRODUCT_DEFINITION_SHAPE('Placement','Placement of an item',#" + (StepManager.NextId + 4) + ");",
                 @"#" + (StepManager.NextId + 4) + " = NEXT_ASSEMBLY_USAGE_OCCURRENCE('" + (StepManager.ObjectIndex + 0) + "','=>[0:1:1:" + (StepManager.ObjectIndex + 0) + "]','',#" + Parent.StepId_PRODUCT_DEFINITION + ",#" + StepId_PRODUCT_DEFINITION + ",$);",     // assembly to box2  (PRODUCT_DEFINITION to PRODUCT_DEFINITION)
