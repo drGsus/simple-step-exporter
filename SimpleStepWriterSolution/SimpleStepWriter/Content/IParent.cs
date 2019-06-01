@@ -2,11 +2,15 @@
 
 namespace SimpleStepWriter.Content
 {
+    /// <summary>
+    /// Interface that needs to be implemented by every class that represents a part in the STEP hierarchy
+    /// and has the ability to be a parent of other parts.
+    /// </summary>
     internal interface IParent : IContent
     {
         List<IChild> Children { get; set; }
-        long[] ChildrenStepId_AXIS2_PLACEMENT_3D { get; }
-        long StepId_SHAPE_REPRESENTATION { get; }
-        long StepId_PRODUCT_DEFINITION { get; }
+        int[] ChildrenStepId_AXIS2_PLACEMENT_3D { get; }
+        int StepId_SHAPE_REPRESENTATION { get; }
+        int StepId_PRODUCT_DEFINITION { get; }
     }
 }

@@ -5,38 +5,38 @@ using System.Linq;
 namespace SimpleStepWriter.Content.Internal
 {
     /// <summary>
-    /// Base assembly that we require for export.
+    /// Base assembly that we require for export. At this moment the library only supports a single assembly.
     /// </summary>
     internal class RootAssembly : IContent, IParent
     {
         // IContent implementation
         public IStepManager StepManager { get; private set; }
-        public long Guid { get; private set; }
-        public string Name { get; private set; }
-        // rotation and center for root assembly is not yet supported
-        public Vector3 Rotation { get; } = Vector3.Zero;
-        public Vector3 Center { get; } = Vector3.Zero;
+        public int Id { get; private set; }
+        public string Name { get; private set; }       
+        public Vector3 Rotation { get; } = Vector3.Zero;     // for root assembly rotation and position other than zero is not supported yet
+        public Vector3 Position { get; } = Vector3.Zero;
 
         // IParent implementation
         public List<IChild> Children { get; set; }
-        public long[] ChildrenStepId_AXIS2_PLACEMENT_3D { get; private set; }
-        public long StepId_SHAPE_REPRESENTATION { get; private set; }
-        public long StepId_PRODUCT_DEFINITION { get; private set; }
+        public int[] ChildrenStepId_AXIS2_PLACEMENT_3D { get; private set; }
+        public int StepId_SHAPE_REPRESENTATION { get; private set; }
+        public int StepId_PRODUCT_DEFINITION { get; private set; }
 
-        public RootAssembly(IStepManager stepManager, string name, long guid)
+        public RootAssembly(IStepManager stepManager, string name, int id)
         {
             this.StepManager = stepManager;            
             this.Name = name;
-            this.Guid = guid;
+            this.Id = id;
             this.Children = new List<IChild>();
         }
 
         /// <summary>
         /// Get all STEP lines required for root assembly.
         /// </summary>
-        /// <param name="childrenCount">Amount of child boxes (solids).</param>
-        /// <param name="childrenCoordinateSystemsIds">ID references to child coordinate systems.</param>
-        /// <returns></returns>
+        /// <param name="childIndex">Child index of this object based on parent.
+        /// Not important for root assembly at the moment cause we don't support multiple root assemblies yet
+        /// </param>      
+        /// <returns>The text we append to the STEP file.</returns>
         public string[] GetLines(int childIndex)
         {
             // lines defining the beginning of our root assembly
@@ -51,15 +51,14 @@ namespace SimpleStepWriter.Content.Internal
             };
 
             StepId_PRODUCT_DEFINITION = 5;
-
-            // We generate a separate coordiante system for each child box.
-            // In addition we have one global (root assembly dependent and mandatory) coordinate system (#10-#14).           
-
             StepManager.NextId = 15;    
 
+            // We generate a separate coordiante system for each child part.
+            // In addition we have one global (root assembly dependent and mandatory) coordinate system (#10-#14).           
+            
             string[] childrenCoordinateSystems = new string[Children.Count * 4];              
             string transformRef = "";
-            ChildrenStepId_AXIS2_PLACEMENT_3D = new long[Children.Count];
+            ChildrenStepId_AXIS2_PLACEMENT_3D = new int[Children.Count];
             for (int i = 0; i < Children.Count; i++)
             {
                 // see page 51 ff.: https://www.prostep.org/fileadmin/downloads/ProSTEP-iViP_Implementation-Guideline_PDM-Schema_4.3.pdf 
@@ -68,9 +67,9 @@ namespace SimpleStepWriter.Content.Internal
                 var a = new Vector3(rotationMatrix.A11, rotationMatrix.A21, rotationMatrix.A31);
                 
                 childrenCoordinateSystems[i * 4 + 0]
-                    = @"#" + (StepManager.NextId + 0) + " = AXIS2_PLACEMENT_3D('',#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 2) + ",#" + (StepManager.NextId + 3) + ");";     // #15
+                    = @"#" + (StepManager.NextId + 0) + " = AXIS2_PLACEMENT_3D('',#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 2) + ",#" + (StepManager.NextId + 3) + ");";
                 childrenCoordinateSystems[i * 4 + 1]
-                    = @"#" + (StepManager.NextId + 1) + " = CARTESIAN_POINT('',(" + Children[i].Center.XString + "," + Children[i].Center.YString + "," + Children[i].Center.ZString + "));";
+                    = @"#" + (StepManager.NextId + 1) + " = CARTESIAN_POINT('',(" + Children[i].Position.XString + "," + Children[i].Position.YString + "," + Children[i].Position.ZString + "));";
                 childrenCoordinateSystems[i * 4 + 2]
                     = @"#" + (StepManager.NextId + 2) + " = DIRECTION('',(" + z.XString + "," + z.YString + "," + z.ZString + "));";
                 childrenCoordinateSystems[i * 4 + 3]
@@ -92,9 +91,8 @@ namespace SimpleStepWriter.Content.Internal
                 @"#14 = DIRECTION('',(1.,0.,-0.));",
             };
             
-            // add assembly footer lines
-            string[] footer = new[] {                
-                @"#" + (StepManager.NextId + 0) + " = ( GEOMETRIC_REPRESENTATION_CONTEXT(3) GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 4) + ")) GLOBAL_UNIT_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 2) + ",#" + (StepManager.NextId + 3) + ")) REPRESENTATION_CONTEXT('Context #1','3D Context with UNIT and UNCERTAINTY') );",       //  legacy #23
+            string[] scaleInformation = new[] {                
+                @"#" + (StepManager.NextId + 0) + " = ( GEOMETRIC_REPRESENTATION_CONTEXT(3) GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 4) + ")) GLOBAL_UNIT_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 2) + ",#" + (StepManager.NextId + 3) + ")) REPRESENTATION_CONTEXT('Context #1','3D Context with UNIT and UNCERTAINTY') );", 
                 @"#" + (StepManager.NextId + 1) + " = ( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.) );",
                 @"#" + (StepManager.NextId + 2) + " = ( NAMED_UNIT(*) PLANE_ANGLE_UNIT() SI_UNIT($,.RADIAN.) );",
                 @"#" + (StepManager.NextId + 3) + " = ( NAMED_UNIT(*) SI_UNIT($,.STERADIAN.) SOLID_ANGLE_UNIT() );",
@@ -104,7 +102,7 @@ namespace SimpleStepWriter.Content.Internal
 
             StepManager.NextId = (StepManager.NextId + 6);
             
-            return (header.Concat(assemblyCoordianteSystem).Concat(childrenCoordinateSystems).Concat(footer)).ToArray();
+            return (header.Concat(assemblyCoordianteSystem).Concat(childrenCoordinateSystems).Concat(scaleInformation)).ToArray();
         }
 
     }
