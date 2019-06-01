@@ -23,88 +23,186 @@ namespace SimpleStepWriterCLI
             const string FILEPATH = @"C:\Users\me\Documents\local\file.step";
 
             StepFile stepFile = new StepFile(FILEPATH, "RootAssembly");
-                        
-            // let's build demo hierarchy
-            long assemblyGuid = stepFile.AddGroup(
-                name: "assembly",
+
+            stepFile.AddBox(
+               name: "origin",
+               center: new Vector3(0, 0, 0),
+               dimension: new Vector3(10, 10, 10),
+               rotation: new Vector3(0, 0, 0),
+               color: Color.Red,
+               parentGuid: 0
+              );
+
+            // let's build a workstation
+
+            long workstationGuid = stepFile.AddGroup(
+               name: "workstation",
+               center: new Vector3(0, 0, 0),
+               rotation: new Vector3(0, 0, 0),
+               parentGuid: 0
+              );
+
+            long tableGuid = stepFile.AddGroup(
+                name: "table",
                 center: new Vector3(0, 0, 0),               
                 rotation: new Vector3(0, 0, 0),
-                parentGuid: 0
+                parentGuid: workstationGuid
+               );
+
+            long stuffGuid = stepFile.AddGroup(
+              name: "stuff",
+              center: new Vector3(0, 0, 630),
+              rotation: new Vector3(0, 0, 0),
+              parentGuid: workstationGuid
+             );
+
+            long foundationGuid = stepFile.AddGroup(
+                name: "foundation",
+                center: new Vector3(0, 0, 0),
+                rotation: new Vector3(0, 0, 0),
+                parentGuid: tableGuid
                );
 
             stepFile.AddBox(
-                name: "box1",
-                center: new Vector3(600, 0, 700),
-                dimension: new Vector3(100, 600, 1400),
+                name: "leg1",
+                center: new Vector3(-750, -250, 300),
+                dimension: new Vector3(100, 100, 600),
                 rotation: new Vector3(0, 0, 0),
                 color: Color.Green,
-                parentGuid: assemblyGuid
+                parentGuid: foundationGuid
                );
 
             stepFile.AddBox(
-               name: "box2",
-               center: new Vector3(600, 0, 700),
-               dimension: new Vector3(100, 600, 1400),
+                name: "leg2",
+                center: new Vector3(750, -250, 300),
+                dimension: new Vector3(100, 100, 600),
+                rotation: new Vector3(0, 0, 0),
+                color: Color.Green,
+                parentGuid: foundationGuid
+               );
+
+            stepFile.AddBox(
+                name: "leg3",
+                center: new Vector3(-750, 250, 300),
+                dimension: new Vector3(100, 100, 600),
+                rotation: new Vector3(0, 0, 0),
+                color: Color.Green,
+                parentGuid: foundationGuid
+               );
+
+            stepFile.AddBox(
+                name: "leg4",
+                center: new Vector3(750, 250, 300),
+                dimension: new Vector3(100, 100, 600),
+                rotation: new Vector3(0, 0, 0),
+                color: Color.Green,
+                parentGuid: foundationGuid
+               );
+
+            stepFile.AddBox(
+                name: "tabletop",
+                center: new Vector3(0, 0, 615),
+                dimension: new Vector3(1600, 600, 30),
+                rotation: new Vector3(0, 0, 0),
+                color: Color.Blue,
+                parentGuid: foundationGuid
+               );
+
+            long drawerGuid = stepFile.AddGroup(
+               name: "drawer",
+               center: new Vector3(-550, 0, 450),
                rotation: new Vector3(0, 0, 0),
-               color: Color.Green,
-               parentGuid: assemblyGuid
+               parentGuid: tableGuid
               );
 
             stepFile.AddBox(
-              name: "box3",
-              center: new Vector3(600, 0, 700),
-              dimension: new Vector3(100, 600, 1400),
-              rotation: new Vector3(0, 0, 0),
-              color: Color.Green,
-              parentGuid: 0
-             );
-
-            /*
-            // debug origin cube
-            stepFile.AddBox(
-                name: "origin_box_10mm_10mm_10mm_red",
-                center: new Vector3(0, 0, 0),
-                dimension: new Vector3(10, 10, 10),
+                name: "walls",
+                center: new Vector3(0, 50, 0),
+                dimension: new Vector3(300, 500, 300),
                 rotation: new Vector3(0, 0, 0),
-                color: Color.Red
-            );
+                color: Color.Yellow,
+                parentGuid: drawerGuid
+               );
 
-            // let's build a shelf
+            stepFile.AddBox(
+                name: "knob1",
+                center: new Vector3(0, -225, 50),
+                dimension: new Vector3(100, 50, 35),
+                rotation: new Vector3(0, 0, 0),
+                color: Color.Black,
+                parentGuid: drawerGuid
+               );
+
+            stepFile.AddBox(
+                name: "knob2",
+                center: new Vector3(0, -225, -60),
+                dimension: new Vector3(100, 50, 35),
+                rotation: new Vector3(0, 0, 0),
+                color: Color.Black,
+                parentGuid: drawerGuid
+               );
+
+            stepFile.AddBox(
+                name: "book1",
+                center: new Vector3(540, 35, 30),
+                dimension: new Vector3(250, 360, 60),
+                rotation: new Vector3(0, 0, -35),
+                color: Color.White,
+                parentGuid: stuffGuid
+               );
+
+            stepFile.AddBox(
+                name: "book2",
+                center: new Vector3(540, 35, 90),
+                dimension: new Vector3(250, 360, 60),
+                rotation: new Vector3(0, 0, -38),
+                color: Color.Yellow,
+                parentGuid: stuffGuid
+               );
+
+            long monitorGuid = stepFile.AddGroup(
+               name: "monitor",
+               center: new Vector3(0, 170, 0),
+               rotation: new Vector3(0, 0, -4),
+               parentGuid: stuffGuid
+              );
+
+            stepFile.AddBox(
+                name: "socket",
+                center: new Vector3(0, 0, 20),
+                dimension: new Vector3(250, 150, 40),
+                rotation: new Vector3(0, 0, 0),
+                color: Color.Black,
+                parentGuid: monitorGuid
+               );
+
+            stepFile.AddBox(
+                name: "arm",
+                center: new Vector3(0, 0, 190),
+                dimension: new Vector3(100, 30, 300),
+                rotation: new Vector3(0, 0, 0),
+                color: Color.Black,
+                parentGuid: monitorGuid
+               );
+
+            stepFile.AddBox(
+                name: "display",
+                center: new Vector3(0, -10, 340),
+                dimension: new Vector3(600, 20, 338),
+                rotation: new Vector3(0, 0, 0),
+                color: Color.Black,
+                parentGuid: monitorGuid
+               );
+
+            stepFile.AddBox(
+                name: "keyboard",
+                center: new Vector3(-110, -75, 0),
+                dimension: new Vector3(560, 185, 40),
+                rotation: new Vector3(0, 0, -6),
+                color: Color.Red,
+                parentGuid: stuffGuid
+               );
             
-            // left shelf stand
-            stepFile.AddBox(
-             name: "shelf_stand_left",
-             center: new Vector3(-600, 0, 700),
-             dimension: new Vector3(100, 600, 1400),
-             rotation: new Vector3(0, 0, 0),
-             color: Color.Green
-            );
-            // right shelf stand
-            stepFile.AddBox(
-                name: "shelf_stand_right",
-                center: new Vector3(600, 0, 700),
-                dimension: new Vector3(100, 600, 1400),
-                rotation: new Vector3(0, 0, 0),
-                color: Color.Green
-            );
-            // top shelf level
-            stepFile.AddBox(
-                name: "shelf_level_top",
-                center: new Vector3(0, 0, 1000),
-                dimension: new Vector3(1100, 500, 50),
-                rotation: new Vector3(20, 0, 0),
-                color: Color.Blue
-            );
-            // bottom shelf level
-            stepFile.AddBox(
-                name: "shelf_level_bottom",
-                center: new Vector3(0, 0, 500),
-                dimension: new Vector3(1100, 500, 50),
-                rotation: new Vector3(20, 0, 0),
-                color: Color.Yellow
-            );
-            */
-
             Console.WriteLine("Want to write the file to:\n" + FILEPATH + " ?");           
             Console.ReadKey();
 
