@@ -10,16 +10,18 @@ namespace SimpleStepWriterCLI
         {
             // http://patorjk.com/software/taag/#p=testall&f=Graffiti&t=Step%20Writer%20
             Console.WriteLine(@"               
-     _______.___________. _______ .______      ____    __    ____ .______       __  .___________. _______ .______      
-    /       |           ||   ____||   _  \     \   \  /  \  /   / |   _  \     |  | |           ||   ____||   _  \     
-   |   (----`---|  |----`|  |__   |  |_)  |     \   \/    \/   /  |  |_)  |    |  | `---|  |----`|  |__   |  |_)  |    
-    \   \       |  |     |   __|  |   ___/       \            /   |      /     |  |     |  |     |   __|  |      /     
-.----)   |      |  |     |  |____ |  |            \    /\    /    |  |\  \----.|  |     |  |     |  |____ |  |\  \----.
-|_______/       |__|     |_______|| _|             \__/  \__/     | _| `._____||__|     |__|     |_______|| _| `._____|                                                                                                                     
-                ");
-            Console.WriteLine("Write simple geometry data into STEP AP214 (ISO-10303) file format.");
-            Console.WriteLine();
+   _________________    _      __    _ __         
+  / __/_  __/ __/ _ \  | | /| / /___(_) /____ ____
+ _\ \  / / / _// ___/  | |/ |/ / __/ / __/ -_) __/
+/___/ /_/ /___/_/      |__/|__/_/ /_/\__/\__/_/   
 
+            ");
+
+            Console.WriteLine(
+                "Write simple geometry data into STEP AP214 (ISO-10303) file format.\n"
+                + "version: " + typeof(StepFile).Assembly.GetName().Version + " [pre-release] \n"
+            );
+            
             const string FILEPATH = @"C:\Users\me\Documents\local\file.step";
 
             StepFile stepFile = new StepFile(FILEPATH, "RootAssembly");
@@ -30,37 +32,37 @@ namespace SimpleStepWriterCLI
                dimension: new Vector3(10, 10, 10),
                rotation: new Vector3(0, 0, 0),
                color: Color.Red,
-               parentGuid: 0
-              );
-
+               parentId: 0
+            );
+             
             // let's build a workstation
 
-            long workstationGuid = stepFile.AddGroup(
+            int workstationId = stepFile.AddGroup(
                name: "workstation",
                center: new Vector3(0, 0, 0),
                rotation: new Vector3(0, 0, 0),
-               parentGuid: 0
+               parentId: 0
               );
 
-            long tableGuid = stepFile.AddGroup(
+            int tableId = stepFile.AddGroup(
                 name: "table",
                 center: new Vector3(0, 0, 0),               
                 rotation: new Vector3(0, 0, 0),
-                parentGuid: workstationGuid
+                parentId: workstationId
                );
 
-            long stuffGuid = stepFile.AddGroup(
-              name: "stuff",
-              center: new Vector3(0, 0, 630),
-              rotation: new Vector3(0, 0, 0),
-              parentGuid: workstationGuid
+            int stuffId = stepFile.AddGroup(
+                name: "stuff",
+                center: new Vector3(0, 0, 630),
+                rotation: new Vector3(0, 0, 0),
+                parentId: workstationId
              );
 
-            long foundationGuid = stepFile.AddGroup(
+            int foundationId = stepFile.AddGroup(
                 name: "foundation",
                 center: new Vector3(0, 0, 0),
                 rotation: new Vector3(0, 0, 0),
-                parentGuid: tableGuid
+                parentId: tableId
                );
 
             stepFile.AddBox(
@@ -69,7 +71,7 @@ namespace SimpleStepWriterCLI
                 dimension: new Vector3(100, 100, 600),
                 rotation: new Vector3(0, 0, 0),
                 color: Color.Green,
-                parentGuid: foundationGuid
+                parentId: foundationId
                );
 
             stepFile.AddBox(
@@ -78,7 +80,7 @@ namespace SimpleStepWriterCLI
                 dimension: new Vector3(100, 100, 600),
                 rotation: new Vector3(0, 0, 0),
                 color: Color.Green,
-                parentGuid: foundationGuid
+                parentId: foundationId
                );
 
             stepFile.AddBox(
@@ -87,7 +89,7 @@ namespace SimpleStepWriterCLI
                 dimension: new Vector3(100, 100, 600),
                 rotation: new Vector3(0, 0, 0),
                 color: Color.Green,
-                parentGuid: foundationGuid
+                parentId: foundationId
                );
 
             stepFile.AddBox(
@@ -96,7 +98,7 @@ namespace SimpleStepWriterCLI
                 dimension: new Vector3(100, 100, 600),
                 rotation: new Vector3(0, 0, 0),
                 color: Color.Green,
-                parentGuid: foundationGuid
+                parentId: foundationId
                );
 
             stepFile.AddBox(
@@ -105,14 +107,14 @@ namespace SimpleStepWriterCLI
                 dimension: new Vector3(1600, 600, 30),
                 rotation: new Vector3(0, 0, 0),
                 color: Color.Blue,
-                parentGuid: foundationGuid
+                parentId: foundationId
                );
 
-            long drawerGuid = stepFile.AddGroup(
+            int drawerId = stepFile.AddGroup(
                name: "drawer",
                center: new Vector3(-550, 0, 450),
                rotation: new Vector3(0, 0, 0),
-               parentGuid: tableGuid
+               parentId: tableId
               );
 
             stepFile.AddBox(
@@ -121,7 +123,7 @@ namespace SimpleStepWriterCLI
                 dimension: new Vector3(300, 500, 300),
                 rotation: new Vector3(0, 0, 0),
                 color: Color.Yellow,
-                parentGuid: drawerGuid
+                parentId: drawerId
                );
 
             stepFile.AddBox(
@@ -130,7 +132,7 @@ namespace SimpleStepWriterCLI
                 dimension: new Vector3(100, 50, 35),
                 rotation: new Vector3(0, 0, 0),
                 color: Color.Black,
-                parentGuid: drawerGuid
+                parentId: drawerId
                );
 
             stepFile.AddBox(
@@ -139,7 +141,7 @@ namespace SimpleStepWriterCLI
                 dimension: new Vector3(100, 50, 35),
                 rotation: new Vector3(0, 0, 0),
                 color: Color.Black,
-                parentGuid: drawerGuid
+                parentId: drawerId
                );
 
             stepFile.AddBox(
@@ -148,7 +150,7 @@ namespace SimpleStepWriterCLI
                 dimension: new Vector3(250, 360, 60),
                 rotation: new Vector3(0, 0, -35),
                 color: Color.White,
-                parentGuid: stuffGuid
+                parentId: stuffId
                );
 
             stepFile.AddBox(
@@ -157,14 +159,14 @@ namespace SimpleStepWriterCLI
                 dimension: new Vector3(250, 360, 60),
                 rotation: new Vector3(0, 0, -38),
                 color: Color.Yellow,
-                parentGuid: stuffGuid
+                parentId: stuffId
                );
 
-            long monitorGuid = stepFile.AddGroup(
+            int monitorId = stepFile.AddGroup(
                name: "monitor",
                center: new Vector3(0, 170, 0),
                rotation: new Vector3(0, 0, -4),
-               parentGuid: stuffGuid
+               parentId: stuffId
               );
 
             stepFile.AddBox(
@@ -173,7 +175,7 @@ namespace SimpleStepWriterCLI
                 dimension: new Vector3(250, 150, 40),
                 rotation: new Vector3(0, 0, 0),
                 color: Color.Black,
-                parentGuid: monitorGuid
+                parentId: monitorId
                );
 
             stepFile.AddBox(
@@ -182,7 +184,7 @@ namespace SimpleStepWriterCLI
                 dimension: new Vector3(100, 30, 300),
                 rotation: new Vector3(0, 0, 0),
                 color: Color.Black,
-                parentGuid: monitorGuid
+                parentId: monitorId
                );
 
             stepFile.AddBox(
@@ -191,7 +193,7 @@ namespace SimpleStepWriterCLI
                 dimension: new Vector3(600, 20, 338),
                 rotation: new Vector3(0, 0, 0),
                 color: Color.Black,
-                parentGuid: monitorGuid
+                parentId: monitorId
                );
 
             stepFile.AddBox(
@@ -200,10 +202,10 @@ namespace SimpleStepWriterCLI
                 dimension: new Vector3(560, 185, 40),
                 rotation: new Vector3(0, 0, -6),
                 color: Color.Red,
-                parentGuid: stuffGuid
+                parentId: stuffId
                );
             
-            Console.WriteLine("Want to write the file to:\n" + FILEPATH + " ?");           
+            Console.WriteLine("Want to write the STEP file with sample content to:\n" + FILEPATH + " ?");           
             Console.ReadKey();
 
             bool result = stepFile.WriteFile();
