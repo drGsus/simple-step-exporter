@@ -45,11 +45,11 @@ namespace SimpleStepWriter.Content
             this.StepManager = stepManager;
             this.Name = name;
             this.Guid = guid;            
-            this.Children = new List<IChild>();         
+            this.Children = new List<IChild>();
 
             // custom transforms for groups are currently not supported, everything is based on the default transform
-            this.Center = Vector3.Zero;
-            this.Rotation = Vector3.Zero;
+            this.Center = center; //Vector3.Zero;
+            this.Rotation = rotation; // Vector3.Zero;
         }
 
         public string[] GetLines(int childIndex)
