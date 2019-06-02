@@ -1,6 +1,7 @@
 ﻿using SimpleStepWriter.Helper;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace SimpleStepWriter.Content.Internal
 {
@@ -37,19 +38,17 @@ namespace SimpleStepWriter.Content.Internal
         /// Not important for root assembly at the moment cause we don't support multiple root assemblies yet
         /// </param>      
         /// <returns>The text we append to the STEP file.</returns>
-        public string[] GetLines(int childIndex)
+        public void GetLines(int childIndex, in StringBuilder sb, in List<string> stepEntries)
         {
             // lines defining the beginning of our root assembly
-            string[] header = new[] {
-                @"#3 = SHAPE_DEFINITION_REPRESENTATION(#4,#10);",                  
-                @"#4 = PRODUCT_DEFINITION_SHAPE('','',#5);",
-                @"#5 = PRODUCT_DEFINITION('design','',#6,#9);",
-                @"#6 = PRODUCT_DEFINITION_FORMATION('','',#7);",
-                @"#7 = PRODUCT('" + Name + "','" + Name + "','',(#8));",
-                @"#8 = PRODUCT_CONTEXT('',#2,'mechanical');",
-                @"#9 = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');"                            
-            };
-
+            sb.AppendLine(@"#3 = SHAPE_DEFINITION_REPRESENTATION(#4,#10);");
+            sb.AppendLine(@"#4 = PRODUCT_DEFINITION_SHAPE('','',#5);");
+            sb.AppendLine(@"#5 = PRODUCT_DEFINITION('design','',#6,#9);");
+            sb.AppendLine(@"#6 = PRODUCT_DEFINITION_FORMATION('','',#7);");
+            sb.AppendLine(@"#7 = PRODUCT('" + Name + "','" + Name + "','',(#8));");
+            sb.AppendLine(@"#8 = PRODUCT_CONTEXT('',#2,'mechanical');");
+            sb.AppendLine(@"#9 = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');");                           
+            
             StepId_PRODUCT_DEFINITION = 5;
             StepManager.NextId = 15;    
 
@@ -83,26 +82,33 @@ namespace SimpleStepWriter.Content.Internal
 
             StepId_SHAPE_REPRESENTATION = 10;
 
-            string[] assemblyCoordianteSystem = new[] {               
-                @"#10 = SHAPE_REPRESENTATION('',(#11" + transformRef + "),#" + StepManager.NextId + ");",
-                @"#11 = AXIS2_PLACEMENT_3D('',#12,#13,#14);",
-                @"#12 = CARTESIAN_POINT('',(0.,0.,0.));",
-                @"#13 = DIRECTION('',(0.,0.,1.));",
-                @"#14 = DIRECTION('',(1.,0.,-0.));",
-            };
-            
-            string[] scaleInformation = new[] {                
-                @"#" + (StepManager.NextId + 0) + " = ( GEOMETRIC_REPRESENTATION_CONTEXT(3) GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 4) + ")) GLOBAL_UNIT_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 2) + ",#" + (StepManager.NextId + 3) + ")) REPRESENTATION_CONTEXT('Context #1','3D Context with UNIT and UNCERTAINTY') );", 
-                @"#" + (StepManager.NextId + 1) + " = ( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.) );",
-                @"#" + (StepManager.NextId + 2) + " = ( NAMED_UNIT(*) PLANE_ANGLE_UNIT() SI_UNIT($,.RADIAN.) );",
-                @"#" + (StepManager.NextId + 3) + " = ( NAMED_UNIT(*) SI_UNIT($,.STERADIAN.) SOLID_ANGLE_UNIT() );",
-                @"#" + (StepManager.NextId + 4) + " = UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(1.E-07),#" + (StepManager.NextId + 1) + ",'distance_accuracy_value','confusion accuracy');",
-                @"#" + (StepManager.NextId + 5) + " = PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(#7));"
-            };
+            // assembly coordiante system
+            sb.AppendLine(@"#10 = SHAPE_REPRESENTATION('',(#11" + transformRef + "),#" + StepManager.NextId + ");");
+            sb.AppendLine(@"#11 = AXIS2_PLACEMENT_3D('',#12,#13,#14);");
+            sb.AppendLine(@"#12 = CARTESIAN_POINT('',(0.,0.,0.));");
+            sb.AppendLine(@"#13 = DIRECTION('',(0.,0.,1.));");
+            sb.AppendLine(@"#14 = DIRECTION('',(1.,0.,-0.));");            
 
-            StepManager.NextId = (StepManager.NextId + 6);
+            // now add prepared coordiante system for each child            
+            foreach (var line in childrenCoordinateSystems)
+            {
+                sb.AppendLine(line);
+            }
+
+            // scale information
+            sb.AppendLine(@"#" + (StepManager.NextId + 0) + " = ( GEOMETRIC_REPRESENTATION_CONTEXT(3) GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 4) + ")) GLOBAL_UNIT_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 2) + ",#" + (StepManager.NextId + 3) + ")) REPRESENTATION_CONTEXT('Context #1','3D Context with UNIT and UNCERTAINTY') );");
+            sb.AppendLine(@"#" + (StepManager.NextId + 1) + " = ( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.) );");
+            sb.AppendLine(@"#" + (StepManager.NextId + 2) + " = ( NAMED_UNIT(*) PLANE_ANGLE_UNIT() SI_UNIT($,.RADIAN.) );");
+            sb.AppendLine(@"#" + (StepManager.NextId + 3) + " = ( NAMED_UNIT(*) SI_UNIT($,.STERADIAN.) SOLID_ANGLE_UNIT() );");
+            sb.AppendLine(@"#" + (StepManager.NextId + 4) + " = UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(1.E-07),#" + (StepManager.NextId + 1) + ",'distance_accuracy_value','confusion accuracy');");
+            sb.AppendLine(@"#" + (StepManager.NextId + 5) + " = PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(#7));");
             
-            return (header.Concat(assemblyCoordianteSystem).Concat(childrenCoordinateSystems).Concat(scaleInformation)).ToArray();
+            StepManager.NextId = (StepManager.NextId + 6);
+
+            stepEntries.Add(sb.ToString());
+            sb.Clear();
+
+            return;
         }
 
     }

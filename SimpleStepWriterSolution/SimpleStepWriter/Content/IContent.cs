@@ -1,4 +1,6 @@
 ﻿using SimpleStepWriter.Helper;
+using System.Collections.Generic;
+using System.Text;
 
 namespace SimpleStepWriter.Content
 {
@@ -12,6 +14,6 @@ namespace SimpleStepWriter.Content
         string Name { get; }
         Vector3 Position { get; }
         Vector3 Rotation { get; }
-        string[] GetLines(int childIndex);
+        void GetLines(int childIndex, in StringBuilder sb, in List<string> stepEntries);
     }
 }

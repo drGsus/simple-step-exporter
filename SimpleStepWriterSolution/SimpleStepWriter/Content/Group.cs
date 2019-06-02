@@ -1,6 +1,7 @@
 ﻿using SimpleStepWriter.Helper;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace SimpleStepWriter.Content
 {
@@ -50,17 +51,16 @@ namespace SimpleStepWriter.Content
         /// <param name="childIndex">Child index of this object based on parent. 
         /// </param>     
         /// <returns>The text we append to the STEP file.</returns>
-        public string[] GetLines(int childIndex)
+        public void GetLines(int childIndex, in StringBuilder sb, in List<string> stepEntries)
         {
-            string[] header = new[] {
-                @"#" + (StepManager.NextId + 0) + " = SHAPE_DEFINITION_REPRESENTATION(#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 7) + ");",       
-                @"#" + (StepManager.NextId + 1) + " = PRODUCT_DEFINITION_SHAPE('','',#" + (StepManager.NextId + 2) + ");",
-                @"#" + (StepManager.NextId + 2) + " = PRODUCT_DEFINITION('design','',#" + (StepManager.NextId + 3) + ",#" + (StepManager.NextId + 6) + ");",
-                @"#" + (StepManager.NextId + 3) + " = PRODUCT_DEFINITION_FORMATION('','',#" + (StepManager.NextId + 4) + ");",
-                @"#" + (StepManager.NextId + 4) + " = PRODUCT('" + Name + "','" + Name + "','',(#" + (StepManager.NextId + 5) + "));",
-                @"#" + (StepManager.NextId + 5) + " = PRODUCT_CONTEXT('',#2,'mechanical');",
-                @"#" + (StepManager.NextId + 6) + " = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');"         
-            };
+            // header
+            sb.AppendLine().Append("#").Append(StepManager.NextId + 0).Append(" = SHAPE_DEFINITION_REPRESENTATION(#").Append(StepManager.NextId + 1).Append(",#").Append(StepManager.NextId + 7).Append(");");
+            sb.AppendLine().Append("#").Append(StepManager.NextId + 1).Append(" = PRODUCT_DEFINITION_SHAPE('','',#").Append(StepManager.NextId + 2).Append(");");
+            sb.AppendLine().Append("#").Append(StepManager.NextId + 2).Append(" = PRODUCT_DEFINITION('design','',#").Append(StepManager.NextId + 3).Append(",#").Append(StepManager.NextId + 6).Append(");");
+            sb.AppendLine().Append("#").Append(StepManager.NextId + 3).Append(" = PRODUCT_DEFINITION_FORMATION('','',#").Append(StepManager.NextId + 4).Append(");");
+            sb.AppendLine().Append("#").Append(StepManager.NextId + 4).Append(" = PRODUCT('" + Name + "','" + Name + "','',(#").Append(StepManager.NextId + 5).Append("));");
+            sb.AppendLine().Append("#").Append(StepManager.NextId + 5).Append(" = PRODUCT_CONTEXT('',#2,'mechanical');");
+            sb.AppendLine().Append("#").Append(StepManager.NextId + 6).Append(" = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');");
 
             int stepId_PRODUCT = (StepManager.NextId + 4);
             StepId_PRODUCT_DEFINITION = (StepManager.NextId + 2);
@@ -94,35 +94,37 @@ namespace SimpleStepWriter.Content
                 StepManager.NextId += 4;
             }
 
-            string[] shapeRepresentation = new[] {
-                @"#" + StepId_SHAPE_REPRESENTATION + " = SHAPE_REPRESENTATION('',(#11" + transformRef + "),#" + StepManager.NextId + ");",               
-            };
+            // shapeRepresentation
+            sb.AppendLine(@"#" + StepId_SHAPE_REPRESENTATION + " = SHAPE_REPRESENTATION('',(#11" + transformRef + "),#" + StepManager.NextId + ");");
 
-            string[] scaleInformation = new[] {
-                @"#" + (StepManager.NextId + 0) + " = ( GEOMETRIC_REPRESENTATION_CONTEXT(3) GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 4) + ")) GLOBAL_UNIT_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 2) + ",#" + (StepManager.NextId + 3) + ")) REPRESENTATION_CONTEXT('Context #1','3D Context with UNIT and UNCERTAINTY') );", 
-                @"#" + (StepManager.NextId + 1) + " = ( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.) );",
-                @"#" + (StepManager.NextId + 2) + " = ( NAMED_UNIT(*) PLANE_ANGLE_UNIT() SI_UNIT($,.RADIAN.) );",
-                @"#" + (StepManager.NextId + 3) + " = ( NAMED_UNIT(*) SI_UNIT($,.STERADIAN.) SOLID_ANGLE_UNIT() );",
-                @"#" + (StepManager.NextId + 4) + " = UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(1.E-07),#" + (StepManager.NextId + 1) + ",'distance_accuracy_value','confusion accuracy');"                
-            };
+            // now add prepared coordiante system for each child            
+            foreach(var line in childrenCoordinateSystems)
+            {
+                sb.AppendLine(line);
+            }
+
+            // scale information         
+            sb.AppendLine().Append("#").Append(StepManager.NextId + 0).Append(" = ( GEOMETRIC_REPRESENTATION_CONTEXT(3) GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#").Append(StepManager.NextId + 4).Append(")) GLOBAL_UNIT_ASSIGNED_CONTEXT((#").Append(StepManager.NextId + 1).Append(",#").Append(StepManager.NextId + 2).Append(",#").Append(StepManager.NextId + 3).Append(")) REPRESENTATION_CONTEXT('Context #1','3D Context with UNIT and UNCERTAINTY') );");
+            sb.AppendLine().Append("#").Append(StepManager.NextId + 1).Append(" = ( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.) );");
+            sb.AppendLine().Append("#").Append(StepManager.NextId + 2).Append(" = ( NAMED_UNIT(*) PLANE_ANGLE_UNIT() SI_UNIT($,.RADIAN.) );");
+            sb.AppendLine().Append("#").Append(StepManager.NextId + 3).Append(" = ( NAMED_UNIT(*) SI_UNIT($,.STERADIAN.) SOLID_ANGLE_UNIT() );");
+            sb.AppendLine().Append("#").Append(StepManager.NextId + 4).Append(" = UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(1.E-07),#").Append(StepManager.NextId + 1).Append(",'distance_accuracy_value','confusion accuracy');");
 
             StepManager.NextId = (StepManager.NextId + 5);
-            
-            // this part to parent
-            var hierarchy = new[]
-            {
-                @"#" + (StepManager.NextId + 0) + " = CONTEXT_DEPENDENT_SHAPE_REPRESENTATION(#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 3) + ");",  
-                @"#" + (StepManager.NextId + 1) + " = ( REPRESENTATION_RELATIONSHIP('','',#" + StepId_SHAPE_REPRESENTATION + ",#" + Parent.StepId_SHAPE_REPRESENTATION + ") REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION(#" + (StepManager.NextId + 2) + ") SHAPE_REPRESENTATION_RELATIONSHIP() );",     
-                @"#" + (StepManager.NextId + 2) + " = ITEM_DEFINED_TRANSFORMATION('','',#11,#" + Parent.ChildrenStepId_AXIS2_PLACEMENT_3D[childIndex] + ");",
-                @"#" + (StepManager.NextId + 3) + " = PRODUCT_DEFINITION_SHAPE('Placement','Placement of an item',#" + (StepManager.NextId + 4) + ");",
-                @"#" + (StepManager.NextId + 4) + " = NEXT_ASSEMBLY_USAGE_OCCURRENCE('" + (StepManager.ObjectIndex + 0) + "','=>[0:1:1:" + (StepManager.ObjectIndex + 0) + "]','',#" + Parent.StepId_PRODUCT_DEFINITION + ",#" + StepId_PRODUCT_DEFINITION + ",$);",
-                @"#" + (StepManager.NextId + 5) + " = PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(#" + stepId_PRODUCT + "));"
-            };
+
+            // hierarchy information (this part to parent)            
+            sb.AppendLine().Append("#").Append(StepManager.NextId + 0).Append(" = CONTEXT_DEPENDENT_SHAPE_REPRESENTATION(#").Append(StepManager.NextId + 1).Append(",#").Append(StepManager.NextId + 3).Append(");");
+            sb.AppendLine().Append("#").Append(StepManager.NextId + 1).Append(" = ( REPRESENTATION_RELATIONSHIP('','',#" + StepId_SHAPE_REPRESENTATION + ",#" + Parent.StepId_SHAPE_REPRESENTATION + ") REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION(#").Append(StepManager.NextId + 2).Append(") SHAPE_REPRESENTATION_RELATIONSHIP() );");
+            sb.AppendLine().Append("#").Append(StepManager.NextId + 2).Append(" = ITEM_DEFINED_TRANSFORMATION('','',#11,#" + Parent.ChildrenStepId_AXIS2_PLACEMENT_3D[childIndex] + ");");
+            sb.AppendLine().Append("#").Append(StepManager.NextId + 3).Append(" = PRODUCT_DEFINITION_SHAPE('Placement','Placement of an item',#").Append(StepManager.NextId + 4).Append(");");
+            sb.AppendLine().Append("#").Append(StepManager.NextId + 4).Append(" = NEXT_ASSEMBLY_USAGE_OCCURRENCE('" + (StepManager.ObjectIndex + 0) + "','=>[0:1:1:" + (StepManager.ObjectIndex + 0) + "]','',#" + Parent.StepId_PRODUCT_DEFINITION + ",#" + StepId_PRODUCT_DEFINITION + ",$);");
+            sb.AppendLine().Append("#").Append(StepManager.NextId + 5).Append(" = PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(#" + stepId_PRODUCT + "));");
 
             StepManager.ObjectIndex += 1;
             StepManager.NextId = (StepManager.NextId + 6);
-            
-            return (header.Concat(shapeRepresentation).Concat(childrenCoordinateSystems).Concat(scaleInformation).Concat(hierarchy)).ToArray();
+
+            stepEntries.Add(sb.ToString());
+            sb.Clear();
         }
 
     }
