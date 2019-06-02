@@ -3,6 +3,8 @@ using SimpleStepWriter.Content.Internal;
 using SimpleStepWriter.Helper;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace SimpleStepWriter
 {
@@ -11,22 +13,15 @@ namespace SimpleStepWriter
     /// </summary>
     public sealed class StepFile
     {
+        public const int ASSEMBLY_ROOT_ID = 0;
+
         public string FilePath { get; private set; }
         public string AssemblyName { get; private set; }
 
         private StepManager stepManager;
-
-        // API parent child relationship
-        public long NextNodeGuid { get; private set; }
-        public long MaxGuid { get; private set; }
-
-        // flat list of content elements      
-        private Dictionary<long, IChild> guidToIChild;
-        private Dictionary<long, long> iChildGuidToParentGuid;
+        private Dictionary<int, IChild> guidToContent;
+        private Dictionary<int, int> guidToParentGuid;
         private RootAssembly rootAssembly;
-
-        private List<string> stepLines;
-        private List<string> logLines;
 
         /// <summary>
         /// Create an instance of this object, add several content types to it and then write the information to disk as a STEP AP214 file.
@@ -38,41 +33,55 @@ namespace SimpleStepWriter
             this.FilePath = path;
             this.AssemblyName = assemblyName;
             stepManager = new StepManager();
-            
-            // keep track of all assembly children and each parent object
-            guidToIChild = new Dictionary<long, IChild>();
-            iChildGuidToParentGuid = new Dictionary<long, long>();
 
-            // init guid
-            NextNodeGuid = 0;
-            MaxGuid = NextNodeGuid;
+            // keep track of all assembly children and each parent object
+            guidToContent = new Dictionary<int, IChild>();
+            guidToParentGuid = new Dictionary<int, int>();
             
             // create root assembly (only one root assembly is currently supported)
-            long guid = NewGuid();
-            rootAssembly = new RootAssembly(this.stepManager, assemblyName, guid);
+            int id = NewId();
+            rootAssembly = new RootAssembly(this.stepManager, assemblyName, id);
         }
 
-        public void AddBox(string name, Vector3 center, Vector3 dimension, Vector3 rotation, Color color, long parentGuid)       
+        /// <summary>
+        /// Add a new box with given parameters to STEP file.
+        /// A box can't have any children and always has a parent.
+        /// </summary>      
+        /// <param name="name">Name of the box that is visible in the CAD hierarchy.</param>     
+        /// <param name="position">Position of the box relative to parent. Also the center of the box.</param>
+        /// <param name="dimension">Box dimension (it's the complete length of an edge, not half of it)</param>
+        /// <param name="rotation">Box rotation relative to parent (around the provided position).</param>
+        /// <param name="color">Box color. Transparency not supported yet.</param>
+        /// <param name="parentId">Id of the parent object (group or root assembly).</param>  
+        public void AddBox(string name, Vector3 position, Vector3 dimension, Vector3 rotation, Color color, int parentId)       
         {
-            long guid = NewGuid();
+            int id = NewId();
 
             // create a box
-            Box box = new Box(stepManager, name, center, dimension, rotation, color, guid);
-            guidToIChild.Add(guid, box);
-            iChildGuidToParentGuid.Add(guid, parentGuid);
+            Box box = new Box(stepManager, name, position, dimension, rotation, color, id);
+            guidToContent.Add(id, box);
+            guidToParentGuid.Add(id, parentId);
 
             // we don't need to return the guid cause it's not useful for anything with the box type
             return;
         }
 
-        public long AddGroup(string name, Vector3 center, Vector3 rotation, long parentGuid)
+        /// <summary>
+        /// Add a new group with given parameters to STEP file.
+        /// A group can have multiple children (boxes and groupss) and always has a parent.
+        /// </summary>       
+        /// <param name="name">Name of the group that is visible in the CAD hierarchy.</param>     
+        /// <param name="position">Position of the group relative to parent.</param>       
+        /// <param name="rotation">Group rotation relative to parent (around the provided position).</param>     
+        /// <param name="parentId">Id of the parent object (group or root assembly).</param>    
+        public int AddGroup(string name, Vector3 position, Vector3 rotation, int parentId)
         {
-            long guid = NewGuid();
+            int guid = NewId();
 
             // create a group
-            Group group = new Group(stepManager, name, center, rotation, guid);
-            guidToIChild.Add(guid, group);
-            iChildGuidToParentGuid.Add(guid, parentGuid);
+            Group group = new Group(stepManager, name, position, rotation, guid);
+            guidToContent.Add(guid, group);
+            guidToParentGuid.Add(guid, parentId);
 
             // return guid for reference
             return guid;
@@ -84,53 +93,15 @@ namespace SimpleStepWriter
         /// <returns>Succes information.</returns>
         public bool WriteFile()
         {
-            // create tree data structure
-            BuildHierarchyStructure();
+            // list of all objects we want to write to the STEP file as string
+            List<string> stepEntries = new List<string>();
+            bool success = GetStepData(in stepEntries);
 
-            // new STEP content
-            stepLines = new List<string>();
-            logLines = new List<string>();
-
-            // traverse hierachy and generate STEP file lines
-            Traverse(rootAssembly); // root
-            
-            // now we have our Tree structure and we can start building the actual STEP content:
-
-            
-
-            
-
-            /*
-            // write mandatory intro data
-            stepLines.AddRange(Default.FileStart);
-            stepLines.AddRange(Default.Header(this.FilePath, "unknown-description"));
-            stepLines.AddRange(Default.DataStart);
-            
-            // write root assembly (required for now)
-            RootGroup rootAssembly = new RootGroup(stepManager, AssemblyName);
-            long[] childrenCoordinateSystemsIds;
-            stepLines.AddRange(rootAssembly.GetLines(fileContent.ToArray(), out childrenCoordinateSystemsIds));
-
-            // write all boxes
-            for(int i = 0; i < fileContent.Count; i++)
-            {
-                stepLines.AddRange(fileContent[i].GetLines(childrenCoordinateSystemsIds[i], i+1 ));
-            }
-            
-            // in order to be a valid STEP file, close the data section after we have written our custom content 
-            stepLines.AddRange(Default.DataEnd);
-            stepLines.AddRange(Default.FileEnd);
-            */
-                        
             try
             {
-                // STEP
-                File.WriteAllLines(FilePath, stepLines);
-
-                // LOGS
-                string logPath = Path.GetDirectoryName(FilePath) + "/stepLog.txt";
-                File.WriteAllLines(logPath, logLines);
-
+                // write STEP file
+                File.WriteAllLines(FilePath, stepEntries);
+                
                 return true;
                 
             } catch
@@ -139,82 +110,123 @@ namespace SimpleStepWriter
             }   
         }
 
-
-        private void Traverse(IParent node)
+        /// <summary>
+        /// Write current specified content to byte array.
+        /// </summary>
+        /// <returns>STEP content as byte array. Null if something went wrong.</returns>
+        public byte[] GetByteData()
         {
-            for(int i = 0; i < node.Children.Count; i++)
-            {
-                var child = node.Children[i];
-
-                if(child.GetType() == typeof(Group))
-                {
-                    logLines.AddRange(new[] { "+ Group: " + ((Group)child).Parent.Name + " / " + ((Group)child).Name });
-
-                    Traverse((IParent)child);
-                }
-                else if(child.GetType() == typeof(Box))
-                {
-                    logLines.AddRange(new[] { "+ Box: " + ((Box)child).Parent.Name + " / " + ((Box)child).Name });
-                }
-                else
-                {
-                    throw new System.Exception("Woot.");
-                }
-            }             
+            // list of all objects we want to write to the STEP file as string
+            List<string> stepEntries = new List<string>();
+            return GetStepData(in stepEntries) ? stepEntries.SelectMany(s => Encoding.ASCII.GetBytes(s)).ToArray() : null;            
         }
 
         /// <summary>
-        /// Build the IContent tree structure based on our parent/child relationship information.
+        /// Collect STEP information.
         /// </summary>
-        private void BuildHierarchyStructure()
+        /// <param name="stepEntries">Empty list with all step entries.</param>
+        /// <returns>List of STEP content,</returns>
+        private bool GetStepData(in List<string> stepEntries)
         {
-            // for all IContent objects with GUID
-            for (int i = 0; i <= MaxGuid; i++)
+            try
             {
-                // iterate through all IContent objects 
-                for (int j = 1; j <= MaxGuid; j++)
-                {
-                    // find child objects
-                    if (iChildGuidToParentGuid[j] == i)
-                    {
-                        // special case for root assembly
-                        if(i == 0)
-                        {
-                            rootAssembly.Children.Add(guidToIChild[j]);
-
-                            if(guidToIChild[j].Parent == null)
-                                guidToIChild[j].Parent = rootAssembly;
-                        }
-                        else
-                        {
-                            if (guidToIChild[i].GetType() != typeof(Group))
-                                throw new System.Exception("Can't happen.");
-
-                            ((Group)guidToIChild[i]).Children.Add(guidToIChild[j]);
-
-                            if (guidToIChild[j].Parent == null)
-                                guidToIChild[j].Parent = (Group)guidToIChild[i];
-                        }
-
-                    }
-
-                }
+                // throws if invalid parent data was passed in
+                BuildTreeDatasStructure();
+            }
+            catch
+            {
+                return false;
             }
 
+            // now we have our tree data structure and we can start building the actual STEP content
+
+            // used for representing string information of a single object that we want to write to the STEP file
+            StringBuilder stringBuilder = new StringBuilder();
+
+            // write start content
+            Default.GetHeader(this.FilePath, "unknown-description", in stringBuilder, in stepEntries);
+            rootAssembly.GetLines(0, in stringBuilder, in stepEntries);
+
+            // write all child content
+            GetAllLines(rootAssembly, in stringBuilder, in stepEntries);
+
+            // write end content
+            Default.GetFooter(in stringBuilder, in stepEntries);
+
+            return true;
         }
 
         /// <summary>
-        /// Issue a new GUID which uniquely references an IContent object.
+        /// Verify provided parent/child relationship and build the IContent tree structure based on that information.
         /// </summary>
-        /// <returns>The new GUID.</returns>
-        private long NewGuid()
-        {
-            long guid = NextNodeGuid;
-            MaxGuid = NextNodeGuid;
+        private void BuildTreeDatasStructure()
+        {           
+            // for all IContent objects with GUID
+            for (int i = 1; i <= maxContentId; i++)
+            {
+                var child = guidToContent[i];                
+                int parentId = guidToParentGuid[i];
 
-            NextNodeGuid++;
+                if (parentId != 0 && !guidToContent.ContainsKey(parentId))
+                {
+                    throw new System.Exception("Provided parent ID is unknown.");
+                }
+
+                if (parentId == 0)
+                    child.Parent = rootAssembly;
+                else
+                {
+                    IParent parent = guidToContent[parentId] as IParent;
+
+                    if (parent != null)
+                    {
+                        child.Parent = parent;
+                    }
+                    else
+                    {
+                        throw new System.Exception("Provided parent ID doesn't belong to an object that implements IParent interface.");
+                    }
+                }              
+              
+                child.Parent.Children.Add(child);
+            }
+        }
+
+        /// <summary>
+        /// Iterate through all child objects and collect STEP information.
+        /// </summary>
+        /// <param name="parent">Parent object.</param>
+        /// <param name="stringBuilder">StringBuilder object used for storing information about a single hierarchy object.</param>
+        /// <param name="stepEntries">String list containing all STEP information.</param>
+        private void GetAllLines(IParent parent, in StringBuilder stringBuilder, in List<string> stepEntries)
+        {
+            for (int i = 0; i < parent.Children.Count; i++)
+            {
+                var child = parent.Children[i];
+                child.GetLines(i, in stringBuilder, in stepEntries);
+
+                var asParent = child as IParent;
+                if (asParent != null)
+                    GetAllLines(asParent, in stringBuilder, in stepEntries);
+            }
+        }
+
+        // ID information
+        private int nextContentId;
+        private int maxContentId;
+
+        /// <summary>
+        /// Issue a new ID which uniquely references an IContent object.
+        /// </summary>
+        /// <returns>The new ID.</returns>
+        private int NewId()
+        {
+            int id = nextContentId;
+            maxContentId = nextContentId;
+
+            nextContentId++;
            
-            return guid;
+            return id;
         }
 
     }
