@@ -24,10 +24,10 @@ class Sample
         // create new StepFile instance
         StepFile stepFile = new StepFile(FILEPATH, "MyRootAssembly");
 
-        // add a Group to StepFle and get the groups id
+        // add a Group to StepFile and get the groups id
         int groupId = stepFile.AddGroup(
             name: "sample-group",                       // name of the part
-            center: new Vector3(0, 0, 0),               // Group position relative to parent position
+            position: new Vector3(0, 0, 0),             // Group position relative to parent position
             rotation: new Vector3(90, 0 ,0),            // Group rotation relative to parent rotation
             parentId: StepFile.ASSEMBLY_ROOT_ID         // id of parent object (ASSEMBLY_ROOT_ID is 0)
         );
@@ -35,7 +35,7 @@ class Sample
         // add a Box to StepFile
         stepFile.AddBox(
             name: "sample-box",                         // name of the part
-            center: new Vector3(0, 0, 0),               // Box position (based on the center of the box) relative to parent position 
+            position: new Vector3(0, 0, 0),               // Box position (based on the center of the box) relative to parent position 
             dimension: new Vector3(10, 10, 10),         // dimension of the box (length, width, height)
             rotation: new Vector3(0, 0, 0),             // Box rotation (rotated around box center) relative to parent rotation
             color: Color.Red,                           // color of the Box
