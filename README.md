@@ -3,14 +3,15 @@ Simple C# (.NET 4) library for writing basic geometry data into STEP AP 214 (ISO
 
 [![Build Status](https://travis-ci.com/fabianschl/simple-step-exporter.svg?branch=master)](https://travis-ci.com/fabianschl/simple-step-exporter)
 
-![image](resources/shelf_freecad_screenshot_2.JPG "shelf") 
+![image](resources/workstation_OnShape_screenshot.JPG "shelf")   
+_(screenshot taken in OnShape)_
 
 ## Quick start
 1. Specify your `FILEPATH` in `Program.cs`
 2. Run SimpleStepWriterCLI project
 3. Press `enter` to write sample content to STEP file
 
-![image](resources/cli_1.JPG "cli")  
+![image](resources/step_writer_cli.gif "cli")  
 
 ## Getting started
 1. Build the library (.NET 4)
@@ -29,24 +30,39 @@ using SimpleStepWriter.Helper;
 StepFile stepFile = new StepFile(@"C:\Users\me\Documents\file.step", "MyRootAssembly");  
 ```
 
-#### Add one or more boxes to the step file
+#### Add a group to the StepFile (optional) and retrieve the ID
 ```
-stepFile.AddBox(  
-            name: "origin_10mm_dimensions",             // name of the part  
-            center: new Vector3(0, 0, 0),               // box position in world space (based on the center of the box)  
-            dimension: new Vector3(10, 10, 10),         // dimension of the box (length, width, height)  
-            rotation: new Vector3(0, 0, 0),             // box rotation (rotated around box center)  
-            color: Color.Red                            // color of the box  
-        );  
+int groupId = stepFile.AddGroup(
+            name: "sample-group",                       // name of the part
+            position: new Vector3(0, 0, 0),             // Group position relative to parent position
+            rotation: new Vector3(90, 0 ,0),            // Group rotation relative to parent rotation
+            parentId: StepFile.ASSEMBLY_ROOT_ID         // id of parent object (ASSEMBLY_ROOT_ID is 0)
+        );
 ```
 
-#### Write the STEP file to the file system
+#### Add one or more boxes to the StepFile
+```
+stepFile.AddBox(
+            name: "sample-box",                         // name of the part
+            position: new Vector3(0, 0, 0),             // Box position (based on the center of the box) relative to parent position 
+            dimension: new Vector3(10, 10, 10),         // dimension of the box (length, width, height)
+            rotation: new Vector3(0, 0, 0),             // Box rotation (rotated around box center) relative to parent rotation
+            color: Color.Red,                           // color of the Box
+            parentId: groupId                           // id of the parent object
+        ); 
+```
+
+#### Write the STEP file to the file system or get byte data
 ```
 bool result = stepFile.WriteFile();  
 ```
+_or_ 
+```
+byte[] data = stepFile.GetByteData();
+```
 
 #### Sample.cs
-![image](resources/sample_code.JPG "SampleCode")
+![image](resources/sample_code_2.JPG "SampleCode")
 
 ## Unity debug environment
 
