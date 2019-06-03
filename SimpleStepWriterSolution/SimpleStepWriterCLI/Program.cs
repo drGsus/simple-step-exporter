@@ -39,7 +39,7 @@ namespace SimpleStepWriterCLI
                parentId: 0
             );                        
           
-            // let's build a workstation
+            // let's build a sample workstation
 
             int workstationId = stepFile.AddGroup(
                name: "workstation",
@@ -209,7 +209,8 @@ namespace SimpleStepWriterCLI
                 parentId: stuffId
                );
 
-            bool result = stepFile.WriteFile();                       
+            bool result = stepFile.WriteFile();
+            // alternatively you can use: byte[] data = stepFile.GetStepData();
 
             if (result)
                 Console.WriteLine("Success.");

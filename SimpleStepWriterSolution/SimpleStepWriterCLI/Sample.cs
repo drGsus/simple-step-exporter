@@ -29,7 +29,7 @@ class Sample
             name: "sample-group",                       // name of the part
             position: new Vector3(0, 0, 0),             // Group position relative to parent position
             rotation: new Vector3(90, 0 ,0),            // Group rotation relative to parent rotation
-            parentId: StepFile.ASSEMBLY_ROOT_ID         // id of parent object (ASSEMBLY_ROOT_ID is 0)
+            parentId: stepFile.ASSEMBLY_ROOT_ID         // id of parent object (ASSEMBLY_ROOT_ID is 0)
         );
 
         // add a Box to StepFile
@@ -48,8 +48,3 @@ class Sample
     }
 
 }
-
-
-
-
-
