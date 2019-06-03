@@ -11,7 +11,7 @@ public class StepExport
     private SimpleStepWriter.StepFile stepFile;
 
     private Node rootNode;
-    private long nextId;
+    private int nextId;
     
     // If you want to export the boxes from Unity make sure that you have the SimpleStepWriter DLL available in your project.
     public void WriteSceneToStepFile(string path, GameObject coordinateSystem)
@@ -74,7 +74,7 @@ public class StepExport
                 stepFile.AddGroup
                 (
                    name: childNode.Go.name,
-                   center: new SimpleStepWriter.Helper.Vector3(childNode.Go.transform.localPosition.x * 1000,
+                   position: new SimpleStepWriter.Helper.Vector3(childNode.Go.transform.localPosition.x * 1000,
                                                                childNode.Go.transform.localPosition.y * 1000,
                                                                childNode.Go.transform.localPosition.z * 1000
                                                               ),
@@ -82,7 +82,7 @@ public class StepExport
                                                                  childNode.Go.transform.localEulerAngles.y,
                                                                  childNode.Go.transform.localEulerAngles.z
                                                                 ),
-                   parentGuid: childNode.ParentId
+                   parentId: childNode.ParentId
                );
             }
             // box
@@ -91,7 +91,7 @@ public class StepExport
                 stepFile.AddBox
                 (
                    name: childNode.Go.name,
-                   center: new SimpleStepWriter.Helper.Vector3(childNode.Go.transform.localPosition.x * 1000,
+                   position: new SimpleStepWriter.Helper.Vector3(childNode.Go.transform.localPosition.x * 1000,
                                                                childNode.Go.transform.localPosition.y * 1000,
                                                                childNode.Go.transform.localPosition.z * 1000
                                                               ),
@@ -108,7 +108,7 @@ public class StepExport
                                                             childNode.Go.transform.GetComponent<MeshRenderer>().sharedMaterial.color.b,
                                                             1f
                                                            ),
-                   parentGuid: childNode.ParentId
+                   parentId: childNode.ParentId
                );
             }
             else
@@ -127,8 +127,8 @@ public class StepExport
 public class Node
 {
     public GameObject Go;
-    public long Id;
-    public long ParentId;
+    public int Id;
+    public int ParentId;
     public Node Parent;
     public List<Node> Children;
 
