@@ -53,7 +53,7 @@ namespace SimpleStepWriter.Content
         public void GetLines(int childIndex, in StringBuilder sb, in List<string> stepEntries)
         {
             // header
-            sb.AppendLine().Append("#").Append(StepManager.NextId + 0).Append(" = SHAPE_DEFINITION_REPRESENTATION(#").Append(StepManager.NextId + 1).Append(",#").Append(StepManager.NextId + 7).Append(");");
+            sb.Append("#").Append(StepManager.NextId + 0).Append(" = SHAPE_DEFINITION_REPRESENTATION(#").Append(StepManager.NextId + 1).Append(",#").Append(StepManager.NextId + 7).Append(");");
             sb.AppendLine().Append("#").Append(StepManager.NextId + 1).Append(" = PRODUCT_DEFINITION_SHAPE('','',#").Append(StepManager.NextId + 2).Append(");");
             sb.AppendLine().Append("#").Append(StepManager.NextId + 2).Append(" = PRODUCT_DEFINITION('design','',#").Append(StepManager.NextId + 3).Append(",#").Append(StepManager.NextId + 6).Append(");");
             sb.AppendLine().Append("#").Append(StepManager.NextId + 3).Append(" = PRODUCT_DEFINITION_FORMATION('','',#").Append(StepManager.NextId + 4).Append(");");
@@ -94,12 +94,12 @@ namespace SimpleStepWriter.Content
             }
 
             // shapeRepresentation
-            sb.AppendLine(@"#" + StepId_SHAPE_REPRESENTATION + " = SHAPE_REPRESENTATION('',(#11" + transformRef + "),#" + StepManager.NextId + ");");
+            sb.AppendLine().Append(@"#" + StepId_SHAPE_REPRESENTATION + " = SHAPE_REPRESENTATION('',(#11" + transformRef + "),#" + StepManager.NextId + ");");
 
             // now add prepared coordinate system for each child            
             foreach(var line in childrenCoordinateSystems)
             {
-                sb.AppendLine(line);
+                sb.AppendLine().Append(line);
             }
 
             // scale information         

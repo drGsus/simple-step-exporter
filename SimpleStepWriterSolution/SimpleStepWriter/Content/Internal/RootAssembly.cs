@@ -46,13 +46,13 @@ namespace SimpleStepWriter.Content.Internal
         public void GetLines(int childIndex, in StringBuilder sb, in List<string> stepEntries)
         {
             // lines defining the beginning of our root assembly
-            sb.AppendLine(@"#3 = SHAPE_DEFINITION_REPRESENTATION(#4,#10);");
-            sb.AppendLine(@"#4 = PRODUCT_DEFINITION_SHAPE('','',#5);");
-            sb.AppendLine(@"#5 = PRODUCT_DEFINITION('design','',#6,#9);");
-            sb.AppendLine(@"#6 = PRODUCT_DEFINITION_FORMATION('','',#7);");
-            sb.AppendLine(@"#7 = PRODUCT('" + Name + "','" + Name + "','',(#8));");
-            sb.AppendLine(@"#8 = PRODUCT_CONTEXT('',#2,'mechanical');");
-            sb.AppendLine(@"#9 = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');");                           
+            sb.Append(@"#3 = SHAPE_DEFINITION_REPRESENTATION(#4,#10);");
+            sb.AppendLine().Append(@"#4 = PRODUCT_DEFINITION_SHAPE('','',#5);");
+            sb.AppendLine().Append(@"#5 = PRODUCT_DEFINITION('design','',#6,#9);");
+            sb.AppendLine().Append(@"#6 = PRODUCT_DEFINITION_FORMATION('','',#7);");
+            sb.AppendLine().Append(@"#7 = PRODUCT('" + Name + "','" + Name + "','',(#8));");
+            sb.AppendLine().Append(@"#8 = PRODUCT_CONTEXT('',#2,'mechanical');");
+            sb.AppendLine().Append(@"#9 = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');");                           
             
             StepId_PRODUCT_DEFINITION = 5;
             StepManager.NextId = 15;    
@@ -88,25 +88,25 @@ namespace SimpleStepWriter.Content.Internal
             StepId_SHAPE_REPRESENTATION = 10;
 
             // assembly coordiante system
-            sb.AppendLine(@"#10 = SHAPE_REPRESENTATION('',(#11" + transformRef + "),#" + StepManager.NextId + ");");
-            sb.AppendLine(@"#11 = AXIS2_PLACEMENT_3D('',#12,#13,#14);");
-            sb.AppendLine(@"#12 = CARTESIAN_POINT('',(0.,0.,0.));");
-            sb.AppendLine(@"#13 = DIRECTION('',(0.,0.,1.));");
-            sb.AppendLine(@"#14 = DIRECTION('',(1.,0.,-0.));");            
+            sb.AppendLine().Append(@"#10 = SHAPE_REPRESENTATION('',(#11" + transformRef + "),#" + StepManager.NextId + ");");
+            sb.AppendLine().Append(@"#11 = AXIS2_PLACEMENT_3D('',#12,#13,#14);");
+            sb.AppendLine().Append(@"#12 = CARTESIAN_POINT('',(0.,0.,0.));");
+            sb.AppendLine().Append(@"#13 = DIRECTION('',(0.,0.,1.));");
+            sb.AppendLine().Append(@"#14 = DIRECTION('',(1.,0.,-0.));");            
 
             // now add prepared coordiante system for each child            
             foreach (var line in childrenCoordinateSystems)
             {
-                sb.AppendLine(line);
+                sb.AppendLine().Append(line);
             }
 
             // scale information
-            sb.AppendLine(@"#" + (StepManager.NextId + 0) + " = ( GEOMETRIC_REPRESENTATION_CONTEXT(3) GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 4) + ")) GLOBAL_UNIT_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 2) + ",#" + (StepManager.NextId + 3) + ")) REPRESENTATION_CONTEXT('Context #1','3D Context with UNIT and UNCERTAINTY') );");
-            sb.AppendLine(@"#" + (StepManager.NextId + 1) + " = ( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.) );");
-            sb.AppendLine(@"#" + (StepManager.NextId + 2) + " = ( NAMED_UNIT(*) PLANE_ANGLE_UNIT() SI_UNIT($,.RADIAN.) );");
-            sb.AppendLine(@"#" + (StepManager.NextId + 3) + " = ( NAMED_UNIT(*) SI_UNIT($,.STERADIAN.) SOLID_ANGLE_UNIT() );");
-            sb.AppendLine(@"#" + (StepManager.NextId + 4) + " = UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(1.E-07),#" + (StepManager.NextId + 1) + ",'distance_accuracy_value','confusion accuracy');");
-            sb.AppendLine(@"#" + (StepManager.NextId + 5) + " = PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(#7));");
+            sb.AppendLine().Append(@"#" + (StepManager.NextId + 0) + " = ( GEOMETRIC_REPRESENTATION_CONTEXT(3) GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 4) + ")) GLOBAL_UNIT_ASSIGNED_CONTEXT((#" + (StepManager.NextId + 1) + ",#" + (StepManager.NextId + 2) + ",#" + (StepManager.NextId + 3) + ")) REPRESENTATION_CONTEXT('Context #1','3D Context with UNIT and UNCERTAINTY') );");
+            sb.AppendLine().Append(@"#" + (StepManager.NextId + 1) + " = ( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.) );");
+            sb.AppendLine().Append(@"#" + (StepManager.NextId + 2) + " = ( NAMED_UNIT(*) PLANE_ANGLE_UNIT() SI_UNIT($,.RADIAN.) );");
+            sb.AppendLine().Append(@"#" + (StepManager.NextId + 3) + " = ( NAMED_UNIT(*) SI_UNIT($,.STERADIAN.) SOLID_ANGLE_UNIT() );");
+            sb.AppendLine().Append(@"#" + (StepManager.NextId + 4) + " = UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(1.E-07),#" + (StepManager.NextId + 1) + ",'distance_accuracy_value','confusion accuracy');");
+            sb.AppendLine().Append(@"#" + (StepManager.NextId + 5) + " = PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(#7));");
             
             StepManager.NextId = (StepManager.NextId + 6);
 

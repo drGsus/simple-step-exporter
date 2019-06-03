@@ -102,7 +102,7 @@ namespace SimpleStepWriter.Content
             int nextId = StepManager.NextId;
 
 #region PART DEFINITION
-            sb.AppendLine().Append("#").Append(nextId + 0).Append(" = SHAPE_DEFINITION_REPRESENTATION(#").Append(nextId + 1).Append(",#").Append(nextId + 7).Append(");");
+            sb.Append("#").Append(nextId + 0).Append(" = SHAPE_DEFINITION_REPRESENTATION(#").Append(nextId + 1).Append(",#").Append(nextId + 7).Append(");");
             sb.AppendLine().Append("#").Append(nextId + 1).Append(" = PRODUCT_DEFINITION_SHAPE('','',#").Append(nextId + 2).Append(");");
             sb.AppendLine().Append("#").Append(nextId + 2).Append(" = PRODUCT_DEFINITION('design','',#").Append(nextId + 3).Append(",#").Append(nextId + 6).Append(");");
             sb.AppendLine().Append("#").Append(nextId + 3).Append(" = PRODUCT_DEFINITION_FORMATION('','',#").Append(nextId + 4).Append(");");
