@@ -1,7 +1,7 @@
 ﻿namespace SimpleStepWriter
 {
     /// <summary>
-    /// Issues values that are relvant in a whole STEP file context.
+    /// Manager that keeps track of global values relevant for the entire STEP file.
     /// </summary>
     internal sealed class StepManager : IStepManager
     {

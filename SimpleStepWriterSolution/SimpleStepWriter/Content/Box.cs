@@ -63,7 +63,7 @@ namespace SimpleStepWriter.Content
         /// <summary>
         /// Create a new box with parameters.
         /// </summary>
-        /// <param name="stepManager">Manager that keeps track of global values relevant for the entire STEP file</param>
+        /// <param name="stepManager">Manager that keeps track of global values relevant for the entire STEP file.</param>
         /// <param name="name">Name of the box that is visible in the CAD hierarchy.</param>     
         /// <param name="position">Position of the box relative to parent. Also the center of the box.</param>
         /// <param name="dimension">Box dimension (it's the complete length of an edge, not half of it)</param>
@@ -92,11 +92,11 @@ namespace SimpleStepWriter.Content
         }
 
         /// <summary>
-        /// Get the STEP lines dependent on the appropriate StepFile object.
+        /// Get the STEP lines.
         /// </summary>
-        /// <param name="childIndex">Child index of this object based on parent. 
-        /// </param>     
-        /// <returns>The text we append to the STEP file.</returns>
+        /// <param name="childIndex">Child index of this object based on parent.</param>
+        /// <param name="sb">StringBuilder instance used for creating STEP content. Has to be cleared when string was created.</param>
+        /// <param name="stepEntries">Add your content to this list if it should be appended to the current STEP content.</param>
         public void GetLines(int childIndex, in StringBuilder sb, in List<string> stepEntries)
         {
             int nextId = StepManager.NextId;
@@ -115,7 +115,7 @@ namespace SimpleStepWriter.Content
             sb.AppendLine().Append("#").Append(nextId + 10).Append(" = DIRECTION('',(0.,0.,1.));");
             sb.AppendLine().Append("#").Append(nextId + 11).Append(" = DIRECTION('',(1.,0.,0.));");
 #endregion
-#region PART SCALE
+#region PART UNIT
             sb.AppendLine().Append("#").Append(nextId + 12).Append(" = ( GEOMETRIC_REPRESENTATION_CONTEXT(3) GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#").Append(nextId + 16).Append(")) GLOBAL_UNIT_ASSIGNED_CONTEXT((#").Append(nextId + 13).Append(",#").Append(nextId + 14).Append(",#").Append(nextId + 15).Append(")) REPRESENTATION_CONTEXT('Context #1','3D Context with UNIT and UNCERTAINTY') );");
             sb.AppendLine().Append("#").Append(nextId + 13).Append(" = ( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.) );");
             sb.AppendLine().Append("#").Append(nextId + 14).Append(" = ( NAMED_UNIT(*) PLANE_ANGLE_UNIT() SI_UNIT($,.RADIAN.) );");
@@ -455,7 +455,7 @@ namespace SimpleStepWriter.Content
             sb.AppendLine().Append("#").Append(nextId + 346).Append(" = ORIENTED_EDGE('',*,*,#").Append(nextId + 220).Append(",.T.);");
             sb.AppendLine().Append("#").Append(nextId + 347).Append(" = ORIENTED_EDGE('',*,*,#").Append(nextId + 313).Append(",.F.);");
 #endregion
-#region SOLID SCALE
+#region SOLID UNIT
             sb.AppendLine().Append("#").Append(nextId + 348).Append(" = ( GEOMETRIC_REPRESENTATION_CONTEXT(3) GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#").Append(nextId + 352).Append(")) GLOBAL_UNIT_ASSIGNED_CONTEXT((#").Append(nextId + 349).Append(",#").Append(nextId + 350).Append(",#").Append(nextId + 351).Append(")) REPRESENTATION_CONTEXT('Context #1','3D Context with UNIT and UNCERTAINTY'));");
             sb.AppendLine().Append("#").Append(nextId + 349).Append(" = ( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.) );");
             sb.AppendLine().Append("#").Append(nextId + 350).Append(" = ( NAMED_UNIT(*) PLANE_ANGLE_UNIT() SI_UNIT($,.RADIAN.) );");
@@ -503,7 +503,8 @@ namespace SimpleStepWriter.Content
 
             StepManager.ObjectIndex += 2;
             StepManager.NextId = (nextId + 383);
-
+           
+            // let's add the created string to current STEP content
             stepEntries.Add(sb.ToString());
             sb.Clear();
         }

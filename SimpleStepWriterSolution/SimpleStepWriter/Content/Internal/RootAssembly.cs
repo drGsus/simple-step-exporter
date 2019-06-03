@@ -1,6 +1,5 @@
 ﻿using SimpleStepWriter.Helper;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace SimpleStepWriter.Content.Internal
@@ -13,8 +12,9 @@ namespace SimpleStepWriter.Content.Internal
         // IContent implementation
         public IStepManager StepManager { get; private set; }
         public int Id { get; private set; }
-        public string Name { get; private set; }       
-        public Vector3 Rotation { get; } = Vector3.Zero;     // for root assembly rotation and position other than zero is not supported yet
+        public string Name { get; private set; }
+        // for root assembly rotation and position other than zero is not supported yet
+        public Vector3 Rotation { get; } = Vector3.Zero;     
         public Vector3 Position { get; } = Vector3.Zero;
 
         // IParent implementation
@@ -23,6 +23,12 @@ namespace SimpleStepWriter.Content.Internal
         public int StepId_SHAPE_REPRESENTATION { get; private set; }
         public int StepId_PRODUCT_DEFINITION { get; private set; }
 
+        /// <summary>
+        /// Create a new root assembly with parameters. At the moment we only support a single root assembly per STEP file.
+        /// </summary>
+        /// <param name="stepManager">Manager that keeps track of global values relevant for the entire STEP file.</param>
+        /// <param name="name">Name of the assembly that is visible in the CAD hierarchy.</param>
+        /// <param name="id">Uniquely identifies this IContent object in the entire assembly.</param>       
         public RootAssembly(IStepManager stepManager, string name, int id)
         {
             this.StepManager = stepManager;            
@@ -32,12 +38,11 @@ namespace SimpleStepWriter.Content.Internal
         }
 
         /// <summary>
-        /// Get all STEP lines required for root assembly.
+        /// Get the STEP lines.
         /// </summary>
-        /// <param name="childIndex">Child index of this object based on parent.
-        /// Not important for root assembly at the moment cause we don't support multiple root assemblies yet
-        /// </param>      
-        /// <returns>The text we append to the STEP file.</returns>
+        /// <param name="childIndex">Child index of this object based on parent. 0 at the moment cause we don't support multiple root assemblies.</param> 
+        /// <param name="sb">StringBuilder instance used for creating STEP content. Has to be cleared when string was created.</param>
+        /// <param name="stepEntries">Add your content to this list if it should be appended to the current STEP content.</param>
         public void GetLines(int childIndex, in StringBuilder sb, in List<string> stepEntries)
         {
             // lines defining the beginning of our root assembly
@@ -105,10 +110,9 @@ namespace SimpleStepWriter.Content.Internal
             
             StepManager.NextId = (StepManager.NextId + 6);
 
+            // let's add the created string to current STEP content
             stepEntries.Add(sb.ToString());
             sb.Clear();
-
-            return;
         }
 
     }

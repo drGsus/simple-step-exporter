@@ -1,6 +1,5 @@
 ﻿using SimpleStepWriter.Helper;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace SimpleStepWriter.Content
@@ -46,11 +45,11 @@ namespace SimpleStepWriter.Content
         }
 
         /// <summary>
-        /// Get the STEP lines dependent on the appropriate StepFile object.
+        /// Get the STEP lines.
         /// </summary>
-        /// <param name="childIndex">Child index of this object based on parent. 
-        /// </param>     
-        /// <returns>The text we append to the STEP file.</returns>
+        /// <param name="childIndex">Child index of this object based on parent.</param>
+        /// <param name="sb">StringBuilder instance used for creating STEP content. Has to be cleared when string was created.</param>
+        /// <param name="stepEntries">Add your content to this list if it should be appended to the current STEP content.</param>
         public void GetLines(int childIndex, in StringBuilder sb, in List<string> stepEntries)
         {
             // header
@@ -97,7 +96,7 @@ namespace SimpleStepWriter.Content
             // shapeRepresentation
             sb.AppendLine(@"#" + StepId_SHAPE_REPRESENTATION + " = SHAPE_REPRESENTATION('',(#11" + transformRef + "),#" + StepManager.NextId + ");");
 
-            // now add prepared coordiante system for each child            
+            // now add prepared coordinate system for each child            
             foreach(var line in childrenCoordinateSystems)
             {
                 sb.AppendLine(line);
@@ -112,7 +111,7 @@ namespace SimpleStepWriter.Content
 
             StepManager.NextId = (StepManager.NextId + 5);
 
-            // hierarchy information (this part to parent)            
+            // hierarchy information (this part to parent relationship)            
             sb.AppendLine().Append("#").Append(StepManager.NextId + 0).Append(" = CONTEXT_DEPENDENT_SHAPE_REPRESENTATION(#").Append(StepManager.NextId + 1).Append(",#").Append(StepManager.NextId + 3).Append(");");
             sb.AppendLine().Append("#").Append(StepManager.NextId + 1).Append(" = ( REPRESENTATION_RELATIONSHIP('','',#" + StepId_SHAPE_REPRESENTATION + ",#" + Parent.StepId_SHAPE_REPRESENTATION + ") REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION(#").Append(StepManager.NextId + 2).Append(") SHAPE_REPRESENTATION_RELATIONSHIP() );");
             sb.AppendLine().Append("#").Append(StepManager.NextId + 2).Append(" = ITEM_DEFINED_TRANSFORMATION('','',#11,#" + Parent.ChildrenStepId_AXIS2_PLACEMENT_3D[childIndex] + ");");
@@ -123,6 +122,7 @@ namespace SimpleStepWriter.Content
             StepManager.ObjectIndex += 1;
             StepManager.NextId = (StepManager.NextId + 6);
 
+            // let's add the created string to current STEP content
             stepEntries.Add(sb.ToString());
             sb.Clear();
         }
