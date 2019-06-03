@@ -7,5 +7,4 @@ install:
   - nuget install NUnit.Console -Version 3.10.0 -OutputDirectory testrunner
 script:
   - msbuild /p:Configuration=Release /p:Platform=x64 ./SimpleStepWriterSolution/SimpleStepWriterSolution.sln
-  - mono ./testrunner/NUnit.ConsoleRunner.3.10.0/tools/nunit3-console.exe ./SimpleStepWriterSolution/SimpleStepWriter.Tests/bin/Release/SimpleStepWriter.Tests.dll
-  
+  - mono ./testrunner/NUnit.ConsoleRunner.3.10.0/tools/nunit3-console.exe ./SimpleStepWriterSolution/SimpleStepWriter.Tests/bin/x64/Release/SimpleStepWriter.Tests.dll
